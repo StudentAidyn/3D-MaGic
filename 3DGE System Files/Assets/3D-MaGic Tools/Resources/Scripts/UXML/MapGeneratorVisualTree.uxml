@@ -1,0 +1,38 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="project://database/Assets/3D-MaGic%20Tools/Resources/Scripts/UXML/3DMGEditorStyle.uss?fileID=7433441132597879392&amp;guid=2dbffaec799be5946ab79e6fa2abadde&amp;type=3#3DMGEditorStyle" />
+    <ui:VisualElement name="SaveContr" style="flex-grow: 1;">
+        <ui:Label text="Save/Load" class="title" />
+        <ui:VisualElement name="SaveElem" class="section" style="flex-grow: 1;">
+            <uie:PropertyField binding-path="_fileName" label="File Name:" name="FileName" tooltip="The name of the file you want to save or load" class="field" style="align-self: stretch; align-items: stretch;" />
+            <ui:Button text="SAVE" name="Bt_Save" tooltip="Will save the map using the file name" class="button" style="width: auto; align-self: stretch; justify-content: flex-start; align-content: center;" />
+            <ui:Button text="LOAD" name="Bt_Load" tooltip="Will Load the map using the file name" class="button" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="GenContr" style="flex-grow: 1; flex-direction: column; width: 100%; align-items: center; align-content: center; align-self: center; justify-content: center; padding-top: 2px; padding-right: 2px; padding-bottom: 2px; padding-left: 2px; height: auto;">
+        <ui:Label text="Controls" emoji-fallback-support="true" name="T_Controls" enable-rich-text="false" class="title" />
+        <ui:VisualElement name="ContInteract" style="flex-grow: 1; flex-direction: column; width: 100%; height: auto; margin-top: 2px; margin-right: 2px; margin-bottom: 2px; margin-left: 2px; padding-top: 2px; padding-right: 2px; padding-bottom: 2px; padding-left: 2px; align-self: center;">
+            <ui:VisualElement name="Controls" class="section" style="flex-grow: 1; flex-direction: column; width: 100%; align-content: center; align-items: center; height: 50%; align-self: center; justify-content: center;">
+                <uie:PropertyField binding-path="_dimensions" name="Dimensions" label="Dimensions" tooltip="The size of the map you want to create" class="field" style="width: 100%; align-items: stretch; align-content: flex-start; align-self: center;" />
+                <ui:EnumField label="Generate Type" value="Left" type="UnityEngine.TextAlignment, UnityEngine.TextRenderingModule" binding-path="_mapGenerationType" name="En_Type" tooltip="The type of generation used when generating." class="field" style="width: 100%; align-items: flex-start; align-self: center;" />
+                <ui:EnumField label="Generate Control" value="Left" type="UnityEngine.TextAlignment, UnityEngine.TextRenderingModule" binding-path="_mapGenerationControl" name="En_Cont" tooltip="The generation steps to be performed" class="field" style="width: 100%; align-items: center; align-self: center;" />
+                <ui:VisualElement name="SeedGrp" class="field" style="width: 100%; align-items: flex-start; align-self: center;">
+                    <uie:PropertyField name="CustSeed" binding-path="_useCurrentSeed" label="Control Seed" tooltip="Flag to control the seed used in generation" style="width: 100%; height: auto; display: flex; visibility: visible; overflow: visible; opacity: 1;" />
+                    <uie:PropertyField name="Seed" label="Seed" binding-path="_currentSeed" enabled="true" tooltip="The seed used in the current generation - can be manually controlled" style="width: 100%; height: auto; display: flex; overflow: visible; visibility: visible; opacity: 1;" />
+                </ui:VisualElement>
+                <ui:Foldout text="Extras" view-data-key="data" class="field">
+                    <uie:ObjectField label="Parent Transform" binding-path="_parentTransform" tooltip="The parent object the map will attach to" style="width: 100%;" />
+                </ui:Foldout>
+            </ui:VisualElement>
+            <ui:VisualElement name="Buttons" label="Dimensions" class="section" style="width: 100%; flex-direction: row; align-items: stretch; justify-content: center; background-color: rgba(0, 0, 0, 0);">
+                <ui:Button text="GENERATE" name="Bt_Generate" class="button" style="width: 70%;" />
+                <ui:Button text="CLEAR GENERATED" name="Bt_Clear" class="button" style="width: 30%; white-space: normal; align-self: auto; align-items: auto;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="CellContr" style="white-space: normal;">
+        <ui:Label text="Cell Components" name="T_Cell" class="title" />
+        <ui:VisualElement name="CellElem" class="section" style="flex-grow: 1;">
+            <uie:PropertyField binding-path="MapCellComponentsList" label="Cell Components" tooltip="List of Cell Components that make up the desired map - only has to be entered once then file control takes over" class="field" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
