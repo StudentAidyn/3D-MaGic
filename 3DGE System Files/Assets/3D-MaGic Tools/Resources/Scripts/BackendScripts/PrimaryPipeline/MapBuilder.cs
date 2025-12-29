@@ -4,7 +4,7 @@ using UnityEngine;
 public class MapBuilder
 {
     private List<GameObject> initiatedMapObjectsList;
-    public List<GameObject> MapObjects() => initiatedMapObjectsList;
+    public List<GameObject> MapObjects() { return initiatedMapObjectsList; }
     // Functions: Build ***************************************************************************
     // ********************************************************************************************
     public MapBuilder()

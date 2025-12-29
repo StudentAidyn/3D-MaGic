@@ -18,12 +18,18 @@ public class MapController
     public CellGenerator LocalCellGenerator;
     public MapGenerator LocalMapGenerator;
     public MapBuilder LocalMapBuilder;
+    public MapMeshCombiner LocalMapMeshCombiner;
 
     // Private
     private MapGenData _generationData = new();
     private Transform _parentTransform;
     private List<ModularMapCellComponent> _cellComponentsList;
     private int[,,] _rawDataArray;
+
+    private bool clearMap       = false;
+    private bool generateMap    = false;
+    private bool buildMap       = false;
+    private bool combineMap     = false;
 
     public MapGenData GetMapGenData() => _generationData;
 
@@ -72,6 +78,17 @@ public class MapController
         {
             LocalMapBuilder = new MapBuilder();
         }
+
+        if (LocalMapMeshCombiner == null)
+        {
+            LocalMapMeshCombiner = new MapMeshCombiner();
+        }
+
+        // New Pipeline scripts
+        //if (LocalMap == null)
+        //{
+        //    LocalMap = new Map();
+        //}
     }
 
     // Select Generator Type
@@ -99,12 +116,50 @@ public class MapController
         DMG_SaveSystem.Init(this);
         RandomNumber.Init(_generationData._customSeed, _generationData._seed);
     }
+    
+    // Sets the output cases of the generation pipeline
+    private void SetupGenerationVariables()
+    {
+        switch (_generationData._control)
+        {
+            case MapGenerationControl.ClearAndGenerateAndBuild:
+                clearMap       = true;
+                generateMap    = true;
+                buildMap       = true;
+                combineMap     = false;
+                break;
+            case MapGenerationControl.Generate:
+                clearMap       = false;
+                generateMap    = true;
+                buildMap       = false;
+                combineMap     = false;
+                break;
+            case MapGenerationControl.GenerateAndBuild:
+                clearMap       = false;
+                generateMap    = true;
+                buildMap       = true;
+                combineMap     = false;
+                break;
+            case MapGenerationControl.ClearGenerateBuildCombine: 
+                clearMap       = true;
+                generateMap    = true;
+                buildMap       = true;
+                combineMap     = true;
+                break;
+            case MapGenerationControl.Combine: 
+                clearMap       = false;
+                generateMap    = false;
+                buildMap       = false;
+                combineMap     = true;
+                break;
+            default:
+                break;
+        }
+    }
 
     private void ExecuteMapGeneration()
     {
-        bool clearMap = (_generationData._control == MapGenerationControl.ClearAndGenerateAndBuild);
-        bool generateMap = _generationData._control < MapGenerationControl.Build;
-        bool buildMap = _generationData._control > MapGenerationControl.Generate;
+        SetupGenerationVariables();
 
         if (clearMap)
         {
@@ -121,6 +176,12 @@ public class MapController
         {
             LocalMapBuilder.Init();
             Build();
+        }
+
+        if (combineMap)
+        {
+            LocalMapMeshCombiner.Init();
+            Combine();
         }
     }
 
@@ -146,6 +207,20 @@ public class MapController
 #if UNITY_EDITOR
             Debug.LogWarning("3D-MaGic: NO MAP DATA FOUND!");
 #endif
+        }
+    }
+
+
+    private void Combine()
+    {
+        if(LocalMapBuilder != null)
+        {
+            List<GameObject> local_map_objects = LocalMapBuilder.MapObjects();
+            if (local_map_objects.Count > 0)
+            {
+                LocalMapMeshCombiner.CombineMeshes(ref local_map_objects);
+
+            }
         }
     }
 

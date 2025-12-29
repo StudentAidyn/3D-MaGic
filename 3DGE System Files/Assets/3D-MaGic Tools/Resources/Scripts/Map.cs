@@ -16,7 +16,9 @@ public enum MapGenerationControl{
     Generate = 0,
     GenerateAndBuild = 1,
     ClearAndGenerateAndBuild = 2,
-    Build = 3
+    ClearGenerateBuildCombine = 3,
+    Build = 4,
+    Combine = 5
 }
 
 public enum MapSaveLoadType

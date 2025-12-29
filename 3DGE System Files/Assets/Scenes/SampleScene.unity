@@ -733,9 +733,9 @@ MonoBehaviour:
   MapCellComponentsList: []
   _dimensions: {x: 100, y: 3, z: 100}
   _mapGenerationType: 2
-  _mapGenerationControl: 2
+  _mapGenerationControl: 3
   _useCurrentSeed: 0
-  _currentSeed: 63902540569802
+  _currentSeed: 63902679125005
   _parentTransform: {fileID: 450152828}
   _fileName: BigWFC_REDUX_MAP
 --- !u!4 &2901058417369174575
