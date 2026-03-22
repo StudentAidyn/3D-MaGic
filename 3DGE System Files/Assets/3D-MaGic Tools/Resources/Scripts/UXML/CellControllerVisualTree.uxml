@@ -1,0 +1,6 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="project://database/Assets/3D-MaGic%20Tools/Resources/Scripts/UXML/3DMGEditorStyle.uss?fileID=7433441132597879392&amp;guid=2dbffaec799be5946ab79e6fa2abadde&amp;type=3#3DMGEditorStyle" />
+    <ui:Button text="Create Cell" binding-path="Bt_Create" name="Bt_Create" class="button" />
+    <ui:Button text="Combine Mesh" binding-path="Bt_Combine" name="Bt_Combine" class="button" />
+    <uie:ObjectField label="Object Field" class="field" />
+</ui:UXML>

@@ -219,7 +219,7 @@ public class MapController
             if (local_map_objects.Count > 0)
             {
                 LocalMapMeshCombiner.CombineMeshes(ref local_map_objects);
-
+                _parentTransform.gameObject.SetActive(false);
             }
         }
     }

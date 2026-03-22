@@ -39,7 +39,6 @@ public class MapEditor : Editor
 
         _visualTree.CloneTree(root);
         
-
         //find and assign buttons
         _generateButton = root.Q<Button>("Bt_Generate");
         _generateButton.RegisterCallback<ClickEvent>(GenerateClick);

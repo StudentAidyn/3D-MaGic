@@ -6,10 +6,13 @@ public class ModularMapCellComponent : ScriptableObject
 {
     [Header("Object Details")]
     // Mesh and Rotation and the chance Weight of selection
-    [SerializeField] private GameObject _mesh = null;
+    [SerializeField] 
+    private GameObject _mesh = null;
     private int _optionIndex = 0;
-    [SerializeField] private int _rotation = 0;
-    [SerializeField] private LayerTypes _layerType;
+    [SerializeField] 
+    private int _rotation = 0;
+    [SerializeField] 
+    private LayerTypes _layerType;
 
     public void SetRotation(int rotation) { _rotation = rotation; }
     public void SetOptionIndex(int optionIndex) { _optionIndex = optionIndex; }
