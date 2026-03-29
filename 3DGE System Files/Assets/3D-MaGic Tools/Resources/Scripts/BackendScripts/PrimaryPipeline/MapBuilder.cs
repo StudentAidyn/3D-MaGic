@@ -3,49 +3,46 @@ using UnityEngine;
 
 public class MapBuilder
 {
-    private List<GameObject> initiatedMapObjectsList;
-    public List<GameObject> MapObjects() { return initiatedMapObjectsList; }
-    // Functions: Build ***************************************************************************
-    // ********************************************************************************************
+    private List<GameObject> m_instantiatedCellGameObjects;
+    public List<GameObject> GetMapObjects() { return m_instantiatedCellGameObjects; }
+
+
     public MapBuilder()
     {  
     }
 
     public void Init() { }
       
-    public void BuildMap(Vector3 _vec3_mapSize, int[,,] _arr_int_rawMapData, List<Cell> _lst_cl_cells, Transform _trn_parent = null)
+    public void InstantiateMap(Vector3 mapSize, int[,,] rawMapData, List<Cell> cells, Transform parentTransform = null)
     {
-        initiatedMapObjectsList = new List<GameObject>();
-
-        for (int z = 0; z < _vec3_mapSize.z; z++)
+        for (int z = 0; z < mapSize.z; z++)
         {
-            for(int y = 0; y < _vec3_mapSize.y; y++)
+            for(int y = 0; y < mapSize.y; y++)
             {
-                for(int x = 0; x < _vec3_mapSize.x; x++)
+                for(int x = 0; x < mapSize.x; x++)
                 {
-                    Cell current_cell = _lst_cl_cells[_arr_int_rawMapData[x, y, z]];
-                    GameObject map_object = BuildMapCell(current_cell._go_gameObject, new Vector3(x, y, z), GetCellRotation(current_cell), _trn_parent);
-                    if (map_object) { initiatedMapObjectsList.Add(map_object); }
+                    int _cellID = rawMapData[x, y, z];
+                    Cell _currentCell = cells[_cellID];
+
+                    GameObject _cellGameObject = _currentCell.PrefabGameObject;
+                    Vector3 _mapPosition = new Vector3(x, y, z);
+                    Vector3 _cellRotation = _currentCell.GetRotationInDegrees();
+
+                    InstantiateCellGameObject(_cellGameObject, _mapPosition, _cellRotation, parentTransform);
                 }
             }
         }
     }
 
-    private GameObject BuildMapCell(GameObject _go_cellObject, Vector3 _vec3_mapPosition, Vector3 _vec3_rotation, Transform _trn_parent)
+    private void InstantiateCellGameObject(GameObject cellGameObject, Vector3 mapPosition, Vector3 cellRotation, Transform parentTransform)
     {
-        GameObject go_built_gameObject = null;
-        
-        if (_go_cellObject != null)
+        if(m_instantiatedCellGameObjects == null) m_instantiatedCellGameObjects = new List<GameObject>();
+
+        if (cellGameObject != null)
         {
-            go_built_gameObject = GameObject.Instantiate(_go_cellObject, _vec3_mapPosition, Quaternion.Euler(_vec3_rotation), _trn_parent);
+            GameObject _newMapGameObject = GameObject.Instantiate(cellGameObject, mapPosition, Quaternion.Euler(cellRotation), parentTransform);
+            if(m_instantiatedCellGameObjects != null) m_instantiatedCellGameObjects.Add(_newMapGameObject);
         }
-
-        return go_built_gameObject;
-    }
-
-    private Vector3 GetCellRotation(Cell _cell)
-    {
-        return new Vector3(0f, -_cell._sbyte_rotation * 90f, 0);
     }
 
     // ********************************************************************************************
@@ -58,14 +55,14 @@ public class MapBuilder
     // Clears the GameObject list
     public void ClearBuiltListOfGameObjects()
     {
-        if (initiatedMapObjectsList == null) return;
-        if (initiatedMapObjectsList.Count < 1) return;
-        foreach (GameObject modular_map_cell_object in initiatedMapObjectsList)
+        if (m_instantiatedCellGameObjects == null) return;
+        if (m_instantiatedCellGameObjects.Count < 1) return;
+        foreach (GameObject modular_map_cell_object in m_instantiatedCellGameObjects)
         {
             DestroyUnityObject(modular_map_cell_object);
         }
 
-        initiatedMapObjectsList.Clear();
+        m_instantiatedCellGameObjects.Clear();
     }
 
     // destroys objects during edit and play mode

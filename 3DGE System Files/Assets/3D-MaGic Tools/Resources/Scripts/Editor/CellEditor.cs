@@ -17,7 +17,7 @@ public class CellEditor : Editor
     //private GameObject MeshObject = null;
     //private int OptionIndex = 0;
     //private int RotationDefault = 0;
-    //private LayerTypes LayerType;
+    //private Layers LayerType;
 
     //public bool HasVariants = false;
     //public bool RemoveAfterBuild = false;
@@ -27,25 +27,25 @@ public class CellEditor : Editor
     //    Connector _Y, Connector _nY,
     //    Connector _Z, Connector _nZ)
     //{
-    //    _validConnections[(int)connector_edge.Z].SetConnector(_Z);
-    //    _validConnections[(int)connector_edge.nZ].SetConnector(_nZ);
+    //    _validConnections[(int)ConnectorEdge.Z].SetConnector(_Z);
+    //    _validConnections[(int)ConnectorEdge.nZ].SetConnector(_nZ);
 
-    //    _validConnections[(int)connector_edge.X].SetConnector(_X);
-    //    _validConnections[(int)connector_edge.nX].SetConnector(_nX);
+    //    _validConnections[(int)ConnectorEdge.X].SetConnector(_X);
+    //    _validConnections[(int)ConnectorEdge.nX].SetConnector(_nX);
 
-    //    _validConnections[(int)connector_edge.Y].SetConnector(_Y);
-    //    _validConnections[(int)connector_edge.nY].SetConnector(_nY);
+    //    _validConnections[(int)ConnectorEdge.Y].SetConnector(_Y);
+    //    _validConnections[(int)ConnectorEdge.nY].SetConnector(_nY);
     //}
 
     //// an array of valid neighbours
     //[SerializeField]
     //ValidConnections[] _validConnections = {
-    //    new ValidConnections(connector_edge.Z),
-    //    new ValidConnections(connector_edge.X),
-    //    new ValidConnections(connector_edge.nZ),
-    //    new ValidConnections(connector_edge.nX),
-    //    new ValidConnections(connector_edge.Y),
-    //    new ValidConnections(connector_edge.nY)
+    //    new ValidConnections(ConnectorEdge.Z),
+    //    new ValidConnections(ConnectorEdge.X),
+    //    new ValidConnections(ConnectorEdge.nZ),
+    //    new ValidConnections(ConnectorEdge.nX),
+    //    new ValidConnections(ConnectorEdge.Y),
+    //    new ValidConnections(ConnectorEdge.nY)
     //};
 
     // GUI Buttons

@@ -39,11 +39,11 @@ public class MapMultiThreader
     //InLineCollapse MapGenThread4;
 
 
-    //public MapMultiThreader(ref ModularMapCell[,,] _map, ref InLineCollapse _mapGen, ref Vector3 _dimensions)
+    //public MapMultiThreader(ref ModularMapCell[,,] _map, ref InLineCollapse _mapGen, ref Vector3 m_dimensions)
     //{
     //    Map = _map;
     //    MapGen = _mapGen;
-    //    MapDimensions = _dimensions;
+    //    MapDimensions = m_dimensions;
     //}
 
     //public IEnumerator GenerateMultiThreadMap(Vector3 _size)
@@ -187,7 +187,7 @@ public class MapMultiThreader
     // * This works by 
     // * #1 Checking if the current module has been collapsed correctly ? passover to next check : activate current correction proceedure (checking valid connections around it and adjusting those connections or resetting the area)
     // * #2 the next check => scanning the the area around the module checking for valid connections ? proceed to the next module : remake the current incorrect connection
-    // * #3 Fail Safe reboot => if it fails to recoup the section it will reset a 3x3x3 area around the effected module, RESET => PROPAGATE => REGENERATE
+    // * #3 Fail Safe reboot => if it fails to recoup the section it will ResetBitAtIndex a 3x3x3 area around the effected module, RESET => PROPAGATE => REGENERATE
     // */
     //void FixMap()
     //{
@@ -205,12 +205,12 @@ public class MapMultiThreader
     //                {
     //                    // Check if the current Module is one of its neigbouring modules' neighbours if so then it passes
 
-    //                    if (!CheckModule(current, new Vector3(x, y, z) - new Vector3(1, 0, 0), x - 1, connector_edge.X, MapDimensions.x) ||
-    //                        !CheckModule(current, new Vector3(x, y, z) + new Vector3(1, 0, 0), x + 1, connector_edge.nX, MapDimensions.x) ||
-    //                        !CheckModule(current, new Vector3(x, y, z) - new Vector3(0, 1, 0), y - 1, connector_edge.Y, MapDimensions.y) ||
-    //                        !CheckModule(current, new Vector3(x, y, z) + new Vector3(0, 1, 0), y + 1, connector_edge.nY, MapDimensions.y) ||
-    //                        !CheckModule(current, new Vector3(x, y, z) - new Vector3(0, 0, 1), z - 1, connector_edge.Z, MapDimensions.z) ||
-    //                        !CheckModule(current, new Vector3(x, y, z) + new Vector3(0, 0, 1), z + 1, connector_edge.nZ, MapDimensions.z))
+    //                    if (!CheckModule(current, new Vector3(x, y, z) - new Vector3(1, 0, 0), x - 1, ConnectorEdge.X, MapDimensions.x) ||
+    //                        !CheckModule(current, new Vector3(x, y, z) + new Vector3(1, 0, 0), x + 1, ConnectorEdge.nX, MapDimensions.x) ||
+    //                        !CheckModule(current, new Vector3(x, y, z) - new Vector3(0, 1, 0), y - 1, ConnectorEdge.Y, MapDimensions.y) ||
+    //                        !CheckModule(current, new Vector3(x, y, z) + new Vector3(0, 1, 0), y + 1, ConnectorEdge.nY, MapDimensions.y) ||
+    //                        !CheckModule(current, new Vector3(x, y, z) - new Vector3(0, 0, 1), z - 1, ConnectorEdge.Z, MapDimensions.z) ||
+    //                        !CheckModule(current, new Vector3(x, y, z) + new Vector3(0, 0, 1), z + 1, ConnectorEdge.nZ, MapDimensions.z))
     //                    {
     //                        // #3 if it fails to refactor the current module then it will apply the fail safe refactoration of the area
     //                        if (!AttemptToRefactorModule(ref current))
@@ -244,7 +244,7 @@ public class MapMultiThreader
 
     //// Compares the current module to its neighbours options.
     //// Param: Map Module current, Vector3 compared module coordinate, float compared axis value, the edge being checked, the Max Value of the map 
-    //private bool CheckModule(ModularMapCell currentMod, Vector3 comparedCoord, float _comparedAxis, connector_edge _edge, float _max)
+    //private bool CheckModule(ModularMapCell currentMod, Vector3 comparedCoord, float _comparedAxis, ConnectorEdge _edge, float _max)
     //{
     //    if (_comparedAxis >= 0 && _comparedAxis < _max)
     //    {
@@ -252,8 +252,8 @@ public class MapMultiThreader
     //        {
     //            ModularMapCell modular_map_cell = MapBuilder.GetModularMapCellFromMap_Position_(ref Map, comparedCoord);
     //            Cell modular_map_cell_component = ModularMapCellHelper.GetModularMapCellComponentFrom_(ref modular_map_cell);
-    //            Bitset btst_options = modular_map_cell_component._list_btst_connections[(int)_edge];
-    //            bool result = btst_options.bifset(currentMod.GetHashCode());
+    //            Bitset btst_options = modular_map_cell_component.Connections[(int)_edge];
+    //            bool result = btst_options.IfResetAtIndex(currentMod.GetHashCode());
     //            //Debug.Log(currentMod.GetModule() + " at " + currentMod.mapPos + " is " + (result ? "" : "NOT") + " Contained in " + GetVectorModule(comparedCoord).GetModule() + "'s edge: " + _edge);
     //            return result;
     //        }
@@ -273,11 +273,11 @@ public class MapMultiThreader
     //    // AreMapDimensionsPositive each coherent edge and removes unrelated options from the current module
     //    // since this is refactoring a singular module AND it is the centre module comparing being compared by its surrounding modules module options
     //    // due to the nature of the refactorisation the refactoring will only consider the connections below a module as considering the top could cause further issues
-    //    RefactorModuleOptions(_module, currentVec.x + 1, currentVec + new Vector3(1, 0, 0), connector_edge.nX, 0, MapDimensions.x);
-    //    RefactorModuleOptions(_module, currentVec.x - 1, currentVec - new Vector3(1, 0, 0), connector_edge.X, 0, MapDimensions.x);
-    //    RefactorModuleOptions(_module, currentVec.y - 1, currentVec - new Vector3(0, 1, 0), connector_edge.Y, 0, MapDimensions.y);
-    //    RefactorModuleOptions(_module, currentVec.z + 1, currentVec + new Vector3(0, 0, 1), connector_edge.nZ, 0, MapDimensions.z);
-    //    RefactorModuleOptions(_module, currentVec.z - 1, currentVec - new Vector3(0, 0, 1), connector_edge.Z, 0, MapDimensions.z);
+    //    RefactorModuleOptions(_module, currentVec.x + 1, currentVec + new Vector3(1, 0, 0), ConnectorEdge.nX, 0, MapDimensions.x);
+    //    RefactorModuleOptions(_module, currentVec.x - 1, currentVec - new Vector3(1, 0, 0), ConnectorEdge.X, 0, MapDimensions.x);
+    //    RefactorModuleOptions(_module, currentVec.y - 1, currentVec - new Vector3(0, 1, 0), ConnectorEdge.Y, 0, MapDimensions.y);
+    //    RefactorModuleOptions(_module, currentVec.z + 1, currentVec + new Vector3(0, 0, 1), ConnectorEdge.nZ, 0, MapDimensions.z);
+    //    RefactorModuleOptions(_module, currentVec.z - 1, currentVec - new Vector3(0, 0, 1), ConnectorEdge.Z, 0, MapDimensions.z);
 
     //    //Debug.Log(_module.GetOptions().Count);
     //    ModularMapCellHelper.Collapse_(ref _module);
@@ -285,7 +285,7 @@ public class MapMultiThreader
     //}
 
     //// removes options from the current module based on the compared modules input
-    //private void RefactorModuleOptions(ModularMapCell currentMod, float _comparedAxis, Vector3 _comparedCoord, connector_edge _comparingEdge, float _min, float _max)
+    //private void RefactorModuleOptions(ModularMapCell currentMod, float _comparedAxis, Vector3 _comparedCoord, ConnectorEdge _comparingEdge, float _min, float _max)
     //{
 
     //    // check if it is within the maps limitations and if it has a module selected
@@ -401,7 +401,7 @@ public class MapMultiThreader
     //void RebuildMap()
     //{
     //    // TODO(Aidyn): Find out if we will keep this
-    //    // if (MapBuilder.GetGenerateFloor()) { MapBuilder.SetLevelToType(ref Map, LayerTypes.Floor, 0); }
+    //    // if (MapBuilder.GetGenerateFloor()) { MapBuilder.SetLevelToType(ref Map, Layers.Floor, 0); }
 
     //    MapGen.GenerateMap(MapDimensions);
     //}

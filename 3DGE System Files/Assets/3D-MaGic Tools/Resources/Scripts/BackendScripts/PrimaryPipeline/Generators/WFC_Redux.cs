@@ -204,36 +204,36 @@ public class WFC_Redux : MapGenerator
         // Check Edges of the recently Collapsed Module
 
         // X
-        if (CheckCollapsedModuleEdge(currentMod, _coords.x + 1, _coords + new Vector3(1, 0, 0), connector_edge.X, _localSize.x))
+        if (CheckCollapsedModuleEdge(currentMod, _coords.x + 1, _coords + new Vector3(1, 0, 0), ConnectorEdge.X, _localSize.x))
         {
             Vector3 updatedCoord = _coords + new Vector3(1, 0, 0);
             OpenList.Add(updatedCoord);
         }
-        if (CheckCollapsedModuleEdge(currentMod, _coords.x - 1, _coords - new Vector3(1, 0, 0), connector_edge.nX, _localSize.x)) 
+        if (CheckCollapsedModuleEdge(currentMod, _coords.x - 1, _coords - new Vector3(1, 0, 0), ConnectorEdge.nX, _localSize.x)) 
         {
             Vector3 updatedCoord = _coords - new Vector3(1, 0, 0);
             OpenList.Add(updatedCoord);
         }
 
         // Y
-        if (CheckCollapsedModuleEdge(currentMod, _coords.y + 1, _coords + new Vector3(0, 1, 0), connector_edge.Y, _localSize.y)) 
+        if (CheckCollapsedModuleEdge(currentMod, _coords.y + 1, _coords + new Vector3(0, 1, 0), ConnectorEdge.Y, _localSize.y)) 
         {
             Vector3 updatedCoord = _coords + new Vector3(0, 1, 0);
             OpenList.Add(updatedCoord);
         }
-        if (CheckCollapsedModuleEdge(currentMod, _coords.y - 1, _coords - new Vector3(0, 1, 0), connector_edge.nY, _localSize.y)) 
+        if (CheckCollapsedModuleEdge(currentMod, _coords.y - 1, _coords - new Vector3(0, 1, 0), ConnectorEdge.nY, _localSize.y)) 
         {
             Vector3 updatedCoord = _coords - new Vector3(0, 1, 0);
             OpenList.Add(updatedCoord);
         }
 
         //Z
-        if (CheckCollapsedModuleEdge(currentMod, _coords.z + 1, _coords + new Vector3(0, 0, 1), connector_edge.Z, _localSize.z))
+        if (CheckCollapsedModuleEdge(currentMod, _coords.z + 1, _coords + new Vector3(0, 0, 1), ConnectorEdge.Z, _localSize.z))
         {
             Vector3 updatedCoord = _coords + new Vector3(0, 0, 1);
             OpenList.Add(updatedCoord);
         }
-        if (CheckCollapsedModuleEdge(currentMod, _coords.z - 1, _coords - new Vector3(0, 0, 1), connector_edge.nZ, _localSize.z))
+        if (CheckCollapsedModuleEdge(currentMod, _coords.z - 1, _coords - new Vector3(0, 0, 1), ConnectorEdge.nZ, _localSize.z))
         {
             Vector3 updatedCoord = _coords - new Vector3(0, 0, 1);
             OpenList.Add(updatedCoord);
@@ -245,7 +245,7 @@ public class WFC_Redux : MapGenerator
         // While the OpenList is empty Propagate
         while (OpenList.Count > 0)
         {
-            // set a local variable and POP first element off openList
+            // SetBitAtIndex a local variable and POP first element off openList
             var currentVec = OpenList[0];
             OpenList.RemoveAt(0);
 
@@ -256,7 +256,7 @@ public class WFC_Redux : MapGenerator
             // X
             if((currentVec.x - _coords.x) < _totalPropagations)
             {
-                if (CheckModuleEdge(currentMod, currentVec.x + 1, currentVec + new Vector3(1, 0, 0), connector_edge.X, _localSize.x))
+                if (CheckModuleEdge(currentMod, currentVec.x + 1, currentVec + new Vector3(1, 0, 0), ConnectorEdge.X, _localSize.x))
                 {
                     Vector3 updatedCoord = currentVec + new Vector3(1, 0, 0);
                     OpenList.Add(updatedCoord);
@@ -264,7 +264,7 @@ public class WFC_Redux : MapGenerator
             }
             if ((currentVec.x - _coords.x) < _totalPropagations)
             {
-                if (CheckModuleEdge(currentMod, currentVec.x - 1, currentVec - new Vector3(1, 0, 0), connector_edge.nX, _localSize.x))
+                if (CheckModuleEdge(currentMod, currentVec.x - 1, currentVec - new Vector3(1, 0, 0), ConnectorEdge.nX, _localSize.x))
                 {
                     Vector3 updatedCoord = currentVec - new Vector3(1, 0, 0);
                     OpenList.Add(updatedCoord);
@@ -274,7 +274,7 @@ public class WFC_Redux : MapGenerator
             // Y
             if ((currentVec.y - _coords.y) < _totalPropagations)
             {
-                if (CheckModuleEdge(currentMod, currentVec.y + 1, currentVec + new Vector3(0, 1, 0), connector_edge.Y, _localSize.y))
+                if (CheckModuleEdge(currentMod, currentVec.y + 1, currentVec + new Vector3(0, 1, 0), ConnectorEdge.Y, _localSize.y))
                 {
                     Vector3 updatedCoord = currentVec + new Vector3(0, 1, 0);
                     OpenList.Add(updatedCoord);
@@ -282,7 +282,7 @@ public class WFC_Redux : MapGenerator
             }
             if ((currentVec.y - _coords.y) < _totalPropagations)
             {
-                if (CheckModuleEdge(currentMod, currentVec.y - 1, currentVec - new Vector3(0, 1, 0), connector_edge.nY, _localSize.y))
+                if (CheckModuleEdge(currentMod, currentVec.y - 1, currentVec - new Vector3(0, 1, 0), ConnectorEdge.nY, _localSize.y))
                 {
                     Vector3 updatedCoord = currentVec - new Vector3(0, 1, 0);
                     OpenList.Add(updatedCoord);
@@ -292,7 +292,7 @@ public class WFC_Redux : MapGenerator
             //Z
             if ((currentVec.z - _coords.z) < _totalPropagations)
             {
-                if (CheckModuleEdge(currentMod, currentVec.z + 1, currentVec + new Vector3(0, 0, 1), connector_edge.Z, _localSize.z))
+                if (CheckModuleEdge(currentMod, currentVec.z + 1, currentVec + new Vector3(0, 0, 1), ConnectorEdge.Z, _localSize.z))
                 {
                     Vector3 updatedCoord = currentVec + new Vector3(0, 0, 1);
                     OpenList.Add(updatedCoord);
@@ -300,7 +300,7 @@ public class WFC_Redux : MapGenerator
             }
             if ((currentVec.z - _coords.z) < _totalPropagations)
             {
-                if (CheckModuleEdge(currentMod, currentVec.z - 1, currentVec - new Vector3(0, 0, 1), connector_edge.nZ, _localSize.z))
+                if (CheckModuleEdge(currentMod, currentVec.z - 1, currentVec - new Vector3(0, 0, 1), ConnectorEdge.nZ, _localSize.z))
                 {
                     Vector3 updatedCoord = currentVec - new Vector3(0, 0, 1);
                     OpenList.Add(updatedCoord);
@@ -312,7 +312,7 @@ public class WFC_Redux : MapGenerator
     }
 
 
-    private bool CheckModuleEdge(ModularMapCell current_module, float _comparedAxis, Vector3 next_module_coordinate, connector_edge _comparingEdge, float _max)
+    private bool CheckModuleEdge(ModularMapCell current_module, float _comparedAxis, Vector3 next_module_coordinate, ConnectorEdge _comparingEdge, float _max)
     {
         bool removed = false;
         if ((_comparedAxis >= 0) && (_comparedAxis < _max))
@@ -322,13 +322,13 @@ public class WFC_Redux : MapGenerator
             {
                 _hashedEntropyVectors.Add(next_module_coordinate);
                 // Attempts to Get the Module
-                Bitset next_module_options = new Bitset(next_modular_map_cell._btst_options);
-                Bitset options = GetEdge_AllOptionsFrom_(_comparingEdge, current_module._btst_options);
+                Bitset next_module_options = new Bitset(next_modular_map_cell.Options);
+                Bitset options = GetEdge_AllOptionsFrom_(_comparingEdge, current_module.Options);
                 Filter_OptionsTo_Options(options, ref GetModule(next_module_coordinate));
 
 
 
-                if (!Bitset.Compare_IsSame(next_module_options, next_modular_map_cell._btst_options))
+                if (!Bitset.DoesBitsetMatchOther(next_module_options, next_modular_map_cell.Options))
                 {
                     removed = true;
                 }
@@ -339,7 +339,7 @@ public class WFC_Redux : MapGenerator
         return removed;
     }
 
-    private bool CheckCollapsedModuleEdge(ModularMapCell current_module, float _comparedAxis, Vector3 next_module_coordinate, connector_edge _comparingEdge, float _max)
+    private bool CheckCollapsedModuleEdge(ModularMapCell current_module, float _comparedAxis, Vector3 next_module_coordinate, ConnectorEdge _comparingEdge, float _max)
     {
         bool removed = false;
         if ((_comparedAxis >= 0) && (_comparedAxis < _max))
@@ -348,10 +348,10 @@ public class WFC_Redux : MapGenerator
             if (!Is_Collapsed(ref next_modular_map_cell))
             {
                 // Attempts to Get the Module
-                Bitset next_module_options = new Bitset(next_modular_map_cell._btst_options);
-                Bitset options = GetEdge_OptionsFrom_(_comparingEdge, current_module._int_module);
+                Bitset next_module_options = new Bitset(next_modular_map_cell.Options);
+                Bitset options = GetEdge_OptionsFrom_(_comparingEdge, current_module.Module);
                 Filter_OptionsTo_Options(options, ref GetModule(next_module_coordinate));
-                if (!Bitset.Compare_IsSame(next_module_options, next_modular_map_cell._btst_options))
+                if (!Bitset.DoesBitsetMatchOther(next_module_options, next_modular_map_cell.Options))
                 {
                     removed = true;
                 }

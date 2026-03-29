@@ -5,11 +5,11 @@ using UnityEngine;
 [System.Serializable]
 public class CellController: MonoBehaviour
 {
-    MapMeshCombiner LocalMapMeshCombiner = new MapMeshCombiner();
+    private MapMeshCombiner m_localMapMeshCombiner = new MapMeshCombiner();
 
-    private bool IsCombineVariablesActive()
+    private bool IsMapMeshCombinerSet()
     {
-        if (LocalMapMeshCombiner == null)
+        if (m_localMapMeshCombiner == null)
         {
             Debug.LogWarning("LocalMapMeshCombiner is not set");
             return false;
@@ -17,26 +17,25 @@ public class CellController: MonoBehaviour
 
         return true;
     }
-    private bool SetupVariables()
+    private void SetLocalVariables()
     {
-        if(LocalMapMeshCombiner == null)
+        if(m_localMapMeshCombiner == null)
         {
-            LocalMapMeshCombiner = new MapMeshCombiner();
+            m_localMapMeshCombiner = new MapMeshCombiner();
         }
-
-        return true;
     }
+
     public void CombineGameObjectCells(GameObject gameObject)
     {
-        if (!IsCombineVariablesActive()) SetupVariables();
+        if (!IsMapMeshCombinerSet()) SetLocalVariables();
 
-        LocalMapMeshCombiner.CombineMeshes(gameObject);
+        m_localMapMeshCombiner.CombineMeshes(gameObject);
     }
 
     public void CreateNewCell()
     {
-        LayerTypes _lt_layerTypes = LayerTypes.None;
-        sbyte _sbyte_rotation = 0;
+        LayerTypes _layerTypes = LayerTypes.None;
+        sbyte _rotation = 0;
 
         Connection _con_posX;
         Connection _con_posY;

@@ -5,13 +5,13 @@ public class ModularMapCell
     // + Variables +
 
     // Module Type:
-    public int _int_module = -1;
-    public Bitset _btst_options;
+    public int Module = -1;
+    public Bitset Options;
 
     // + Constructor +
-    public ModularMapCell(int _bitsetSize)
+    public ModularMapCell(int bitsetSize)
     {
-        _btst_options = new Bitset(_bitsetSize);
-        _btst_options.AllSet();
+        Options = new Bitset(bitsetSize);
+        Options.SetAllBits();
     }
 }

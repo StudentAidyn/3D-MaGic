@@ -51,7 +51,7 @@ public class MapGenerator
             {
                 for (int x = 0; x < dimensions.x; x++)
                 {
-                    rawDataArrayReference[x, y, z] = _mapArray[x, y, z]._int_module;
+                    rawDataArrayReference[x, y, z] = _mapArray[x, y, z].Module;
                 }
 
             }
@@ -82,29 +82,29 @@ public class MapGenerator
     }
 
     // Get Collapsed Object Options
-    public Bitset GetEdge_OptionsFrom_(connector_edge _connectorEdge, int index)
+    public Bitset GetEdge_OptionsFrom_(ConnectorEdge _connectorEdge, int index)
     {
         Cell mod_cell = GetCell(index);
         if (mod_cell != null)
         {
-            return mod_cell._list_btst_connections[(int)_connectorEdge];
+            return mod_cell.Connections[(int)_connectorEdge];
         }
         return new Bitset(0);
     }
 
     // Non-Collapsed Object Options
-    public Bitset GetEdge_AllOptionsFrom_(connector_edge _connectorEdge, Bitset _currentOptions)
+    public Bitset GetEdge_AllOptionsFrom_(ConnectorEdge _connectorEdge, Bitset _currentOptions)
     {
-        // create new bitset to store new found options => ensure it is reset upon creation
+        // create new BitsetArray to store new found options => ensure it is ResetBitAtIndex upon creation
         Bitset found_options = new Bitset(_currentOptions.Size());
-        found_options.AllReset();
+        found_options.ResetAllBits();
 
         // find and fill options
         for (int i = 0; i < _currentOptions.Size(); i++)
         {
             if (_currentOptions[i])
             {
-                found_options.Copy(found_options | GetCell(i)._list_btst_connections[(int)_connectorEdge]);
+                found_options.Copy(found_options | GetCell(i).Connections[(int)_connectorEdge]);
             }
         }
 
@@ -119,9 +119,9 @@ public class MapGenerator
     {
         int entropy = 0;
 
-        for (int i = 0; i < modularMapCell._btst_options.Size(); i++)
+        for (int i = 0; i < modularMapCell.Options.Size(); i++)
         {
-            if (modularMapCell._btst_options[i])
+            if (modularMapCell.Options[i])
             {
                 entropy++;
             }
@@ -132,13 +132,13 @@ public class MapGenerator
 
     protected static void Filter_OptionsTo_Options(Bitset btst_options, ref ModularMapCell modularMapCell)
     {
-        modularMapCell._btst_options.Copy(modularMapCell._btst_options & btst_options);
+        modularMapCell.Options.Copy(modularMapCell.Options & btst_options);
     }
 
     // AreMapDimensionsPositive if the current Module has been collapsed
     protected static bool Is_Collapsed(ref ModularMapCell modularMapCell)
     {
-        return modularMapCell._int_module != -1;
+        return modularMapCell.Module != -1;
     }
 
     // Collapses the current Module into one of the options taking in consideration the weights of the objects
@@ -150,18 +150,18 @@ public class MapGenerator
             return;
         }
 
-        if (modularMapCell._btst_options.IsAllReset())
+        if (modularMapCell.Options.IsAllReset())
         {
-            int fvalue = modularMapCell._btst_options.bits_get()[0];
-            modularMapCell._int_module = 0;
+            int fvalue = modularMapCell.Options.GetBitset()[0];
+            modularMapCell.Module = 0;
             return;
         }
 
         List<int> found_modules = new List<int>();
 
-        for (int index = 0; index < modularMapCell._btst_options.Size(); index++)
+        for (int index = 0; index < modularMapCell.Options.Size(); index++)
         {
-            if (modularMapCell._btst_options[index])
+            if (modularMapCell.Options[index])
             {
                 found_modules.Add(index);
             }
@@ -171,7 +171,7 @@ public class MapGenerator
 
         long random_index = (long)RandomNumber.NextMax((ulong)found_modules.Count);
 
-        modularMapCell._int_module = found_modules[(int)random_index];
+        modularMapCell.Module = found_modules[(int)random_index];
 
     }
 

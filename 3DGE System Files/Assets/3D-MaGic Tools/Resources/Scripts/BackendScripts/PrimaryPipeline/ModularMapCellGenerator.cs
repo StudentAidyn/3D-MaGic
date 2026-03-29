@@ -8,18 +8,18 @@ using System.Collections;
 [System.Serializable]
 public struct CellGroupData
 {
-    public int _int_totalCells;
-    public List<CellData> _lst_cd_cellData;
+    public int TotalCells;
+    public List<MicroCell> MicroCells;
 }
 
 [System.Serializable]
-public struct CellData
+public struct MicroCell
 {
-    public int _int_objectID;
-    public GameObject _go_gameObject;
-    public sbyte _sbyte_rotation;
-    public LayerTypes _lt_layerTypes;
-    public BitsetData[] _list_bsdt_connections;
+    public int ID;
+    public GameObject PrefabGameObject;
+    public sbyte Rotation;
+    public LayerTypes Layers;
+    public BitsetData[] EdgeConnections;
 
 }
 
@@ -30,15 +30,15 @@ public class CellGenerator
     // VARIABLES *************************************************************************************************
     // ***********************************************************************************************************
 
-    // Generated Cells
-    public List<Cell> _lst_cells = new();
+    // Generated GetCells
+    private List<Cell> m_cells = new();
     //private Dictionary<int, Cell> dict_int_cl_cells;
 
-    public List<Cell> Cells() => _lst_cells;
+    public List<Cell> GetCells() => m_cells;
 
-    // Total Cells ~ can also be found out through counting _cellsList list
-    private int int_totalCells = 0;
-    public int CellCount() => int_totalCells;
+    // Total GetCells ~ can also be found out through counting _cellsList list
+    private int m_totalCells = 0;
+    public int GetCellCount() => m_totalCells;
 
 
     // ***********************************************************************************************************
@@ -49,18 +49,18 @@ public class CellGenerator
     {
     }
 
-    public void Init(ref List<ModularMapCellComponent> _lst_mapCellComponents)
+    public void Init(ref List<ModularMapCellComponent> mapCellComponents)
     {
-        GenerateCells(ref _lst_mapCellComponents);
+        GenerateCells(ref mapCellComponents);
     }
 
 
-    public bool GenerateCells(ref List<ModularMapCellComponent> _lst_mapCellComponents)
+    public bool GenerateCells(ref List<ModularMapCellComponent> mapCellComponents)
     {
-        if (_lst_mapCellComponents.Count > 0)
+        if (mapCellComponents.Count > 0)
         {
-            Sort(ref _lst_mapCellComponents);
-            CreateConnections(in _lst_mapCellComponents);
+            Sort(ref mapCellComponents);
+            CreateConnections(in mapCellComponents);
             DMG_SaveSystem.SaveCells();
         }
         else
@@ -76,27 +76,27 @@ public class CellGenerator
             }
         }
 
-        if (_lst_cells.Count == 0)
+        if (m_cells.Count == 0)
         {
             Debug.LogError("NO CELLS GENERATED");
             return false;
         }
 
-        _lst_mapCellComponents.Clear();
+        mapCellComponents.Clear();
         return true;
 
     }
 
-    private void Sort(ref List<ModularMapCellComponent> _lst_mapCellComponents)
+    private void Sort(ref List<ModularMapCellComponent> mapCellComponents)
     {
-        _lst_mapCellComponents = _lst_mapCellComponents.OrderBy(item => ((item.GetMesh() != null) ? item.GetMesh().name : " ")).ToList();
+        mapCellComponents = mapCellComponents.OrderBy(item => ((item.GetMesh() != null) ? item.GetMesh().name : " ")).ToList();
     }
     
     private void ResetCells()
     {
         // Reset Connections
-        _lst_cells.Clear();
-        int_totalCells = 0;
+        m_cells.Clear();
+        m_totalCells = 0;
     }
 
 
@@ -105,154 +105,153 @@ public class CellGenerator
     // ***********************************************************************************************************
 
     // generate connections based on the connection rules - can generate during editor (out of play state)
-    private void CreateConnections(in List<ModularMapCellComponent> _lst_mapCellComponents)
+    private void CreateConnections(in List<ModularMapCellComponent> mapCellComponents)
     {
         ResetCells();
 
 
-        // GenerateMap Cells
-        for (int modules_index = 0; modules_index < _lst_mapCellComponents.Count; modules_index++)
+        // GenerateMap GetCells
+        for (int modulesIndex = 0; modulesIndex < mapCellComponents.Count; modulesIndex++)
         {
-            ModularMapCellComponent current_modular_cell = _lst_mapCellComponents[modules_index];
-            if (!current_modular_cell.NoVariants())
+            ModularMapCellComponent currentModularCell = mapCellComponents[modulesIndex];
+            if (!currentModularCell.NoVariants())
             {
                 for (sbyte i = 0; i < 4; i++)
                 {
                     Cell cell = new();
-                    cell._int_objectID = int_totalCells;
-                    cell._lt_layerTypes = current_modular_cell.GetLayerType();
-                    cell._go_gameObject = current_modular_cell.GetMesh();
-                    cell._sbyte_rotation = (sbyte)((current_modular_cell.GetRotation() + i) % 4);
+                    cell.ID = m_totalCells;
+                    cell.Layers = currentModularCell.GetLayerType();
+                    cell.PrefabGameObject = currentModularCell.GetMesh();
+                    cell.Rotation = (sbyte)((currentModularCell.GetRotation() + i) % 4);
 
-                    cell._con_posZ = current_modular_cell.GetConnectionWith_((connector_edge)(i % 4));
-                    cell._con_posX = current_modular_cell.GetConnectionWith_((connector_edge)((i + 1) % 4));
-                    cell._con_negZ = current_modular_cell.GetConnectionWith_((connector_edge)((i + 2) % 4));
-                    cell._con_negX = current_modular_cell.GetConnectionWith_((connector_edge)((i + 3) % 4));
+                    cell.ConnectionUp = currentModularCell.GetConnectionWith_((ConnectorEdge)(i % 4));
+                    cell.ConnectionRight = currentModularCell.GetConnectionWith_((ConnectorEdge)((i + 1) % 4));
+                    cell.ConnectionDown = currentModularCell.GetConnectionWith_((ConnectorEdge)((i + 2) % 4));
+                    cell.ConnectionLeft = currentModularCell.GetConnectionWith_((ConnectorEdge)((i + 3) % 4));
 
                     // DISPLAY CONNECTION TYPES
-                    //Debug.Log(cell._con_posZ._connector + " || " + cell._con_posX._connector + " || " + cell._con_negZ._connector + " || " + cell._con_negX._connector);
+                    //Debug.Log(cell.ConnectionUp._connector + " || " + cell.ConnectionRight._connector + " || " + cell.ConnectionDown._connector + " || " + cell.ConnectionLeft._connector);
 
-                    cell._con_posY = current_modular_cell.GetConnectionWith_(connector_edge.Y);
-                    cell._con_negY = current_modular_cell.GetConnectionWith_(connector_edge.nY);
+                    cell.ConnectionFront = currentModularCell.GetConnectionWith_(ConnectorEdge.Y);
+                    cell.ConnectionBack = currentModularCell.GetConnectionWith_(ConnectorEdge.nY);
 
-                    if (cell._con_posY._property == ConnectorProperty.Rotational) cell._con_posY._rotation = (sbyte)((cell._con_posY._rotation + i) % 4);
-                    if (cell._con_negY._property == ConnectorProperty.Rotational) cell._con_negY._rotation = (sbyte)((cell._con_negY._rotation + i) % 4);
+                    if (cell.ConnectionFront._property == ConnectorProperty.Rotational) cell.ConnectionFront._rotation = (sbyte)((cell.ConnectionFront._rotation + i) % 4);
+                    if (cell.ConnectionBack._property == ConnectorProperty.Rotational) cell.ConnectionBack._rotation = (sbyte)((cell.ConnectionBack._rotation + i) % 4);
 
-                    _lst_cells.Add(cell);
+                    m_cells.Add(cell);
 
-                    int_totalCells++;
+                    m_totalCells++;
                 }
             }
             else
             {
                 Cell cell = new Cell();
-                cell._int_objectID = int_totalCells;
-                cell._lt_layerTypes = current_modular_cell.GetLayerType();
-                cell._go_gameObject = current_modular_cell.GetMesh();
-                cell._sbyte_rotation = 0;
+                cell.ID = m_totalCells;
+                cell.Layers = currentModularCell.GetLayerType();
+                cell.PrefabGameObject = currentModularCell.GetMesh();
+                cell.Rotation = 0;
 
-                cell._con_posZ = current_modular_cell.GetConnectionWith_(connector_edge.Z);
-                cell._con_posX = current_modular_cell.GetConnectionWith_(connector_edge.X);
-                cell._con_negZ = current_modular_cell.GetConnectionWith_(connector_edge.nZ);
-                cell._con_negX = current_modular_cell.GetConnectionWith_(connector_edge.nX);
+                cell.ConnectionUp = currentModularCell.GetConnectionWith_(ConnectorEdge.Z);
+                cell.ConnectionRight = currentModularCell.GetConnectionWith_(ConnectorEdge.X);
+                cell.ConnectionDown = currentModularCell.GetConnectionWith_(ConnectorEdge.nZ);
+                cell.ConnectionLeft = currentModularCell.GetConnectionWith_(ConnectorEdge.nX);
 
-                cell._con_posY = current_modular_cell.GetConnectionWith_(connector_edge.Y);
-                cell._con_negY = current_modular_cell.GetConnectionWith_(connector_edge.nY);
+                cell.ConnectionFront = currentModularCell.GetConnectionWith_(ConnectorEdge.Y);
+                cell.ConnectionBack = currentModularCell.GetConnectionWith_(ConnectorEdge.nY);
 
-                _lst_cells.Add(cell);
-                int_totalCells++;
+                m_cells.Add(cell);
+                m_totalCells++;
             }
         }
 
-        // Compare_IsSame each CELL to ALL OTHER CELLS
-        int cell_size = _lst_cells.Count;
-        for (int current_cell_index = 0; current_cell_index < cell_size; current_cell_index++) {
-            List<Bitset> found_connections = new List<Bitset>();
+        // DoesBitsetMatchOther each CELL to ALL OTHER CELLS
+        int cellSize = m_cells.Count;
+        for (int currentCellIndex = 0; currentCellIndex < cellSize; currentCellIndex++) {
+            List<Bitset> foundConnections = new List<Bitset>();
             for(int i = 0; i < 6; i++)
             {
-                Bitset new_bitset = new Bitset(cell_size);
-                found_connections.Add(new_bitset);
+                Bitset newBitset = new Bitset(cellSize);
+                foundConnections.Add(newBitset);
             }
-            for (int other_cell_index = 0; other_cell_index < cell_size; other_cell_index++) {
+            for (int otherCellIndex = 0; otherCellIndex < cellSize; otherCellIndex++) {
 
                 // compare cell to all its sides and opposite sides to test for connections.
-                if (CompareConnections(_lst_cells[current_cell_index]._con_posX, _lst_cells[other_cell_index]._con_negX))
+                // TODO => TURN THIS INTO A FUNCTION TO KISS AND DRY
+                if (CompareConnections(m_cells[currentCellIndex].ConnectionRight, m_cells[otherCellIndex].ConnectionLeft))
                 {
-                    found_connections[(int)connector_edge.X].set(_lst_cells[other_cell_index]._int_objectID);
+                    foundConnections[(int)ConnectorEdge.X].SetBitAtIndex(m_cells[otherCellIndex].ID);
                 }
 
-                if (CompareConnections(_lst_cells[current_cell_index]._con_posY, _lst_cells[other_cell_index]._con_negY))
+                if (CompareConnections(m_cells[currentCellIndex].ConnectionFront, m_cells[otherCellIndex].ConnectionBack))
                 {
-                    found_connections[(int)connector_edge.Y].set(_lst_cells[other_cell_index]._int_objectID);
+                    foundConnections[(int)ConnectorEdge.Y].SetBitAtIndex(m_cells[otherCellIndex].ID);
                 }
 
-                if (CompareConnections(_lst_cells[current_cell_index]._con_posZ, _lst_cells[other_cell_index]._con_negZ))
+                if (CompareConnections(m_cells[currentCellIndex].ConnectionUp, m_cells[otherCellIndex].ConnectionDown))
                 {
-                    found_connections[(int)connector_edge.Z].set(_lst_cells[other_cell_index]._int_objectID);
+                    foundConnections[(int)ConnectorEdge.Z].SetBitAtIndex(m_cells[otherCellIndex].ID);
                 }
 
-                if (CompareConnections(_lst_cells[current_cell_index]._con_negX, _lst_cells[other_cell_index]._con_posX))
+                if (CompareConnections(m_cells[currentCellIndex].ConnectionLeft, m_cells[otherCellIndex].ConnectionRight))
                 {
-                    found_connections[(int)connector_edge.nX].set(_lst_cells[other_cell_index]._int_objectID);
+                    foundConnections[(int)ConnectorEdge.nX].SetBitAtIndex(m_cells[otherCellIndex].ID);
                 }
 
-                if (CompareConnections(_lst_cells[current_cell_index]._con_negY, _lst_cells[other_cell_index]._con_posY))
+                if (CompareConnections(m_cells[currentCellIndex].ConnectionBack, m_cells[otherCellIndex].ConnectionFront))
                 {
-                    found_connections[(int)connector_edge.nY].set(_lst_cells[other_cell_index]._int_objectID);
+                    foundConnections[(int)ConnectorEdge.nY].SetBitAtIndex(m_cells[otherCellIndex].ID);
                 }
 
-                if (CompareConnections(_lst_cells[current_cell_index]._con_negZ, _lst_cells[other_cell_index]._con_posZ))
+                if (CompareConnections(m_cells[currentCellIndex].ConnectionDown, m_cells[otherCellIndex].ConnectionUp))
                 {
-                    found_connections[(int)connector_edge.nZ].set(_lst_cells[other_cell_index]._int_objectID);
+                    foundConnections[(int)ConnectorEdge.nZ].SetBitAtIndex(m_cells[otherCellIndex].ID);
                 }
 
             }
 
             for (int i = 0; i < 6; i++)
             {
-                _lst_cells[current_cell_index]._list_btst_connections.Add(found_connections[i]);
+                m_cells[currentCellIndex].Connections.Add(foundConnections[i]);
             }
             
         }
-
-        Debug.Log("EdgesCreated");
     }
 
     // Compares 2 Edges passed through based on the rules given 
-    bool CompareConnections(Connection _currentConnection, Connection _comparedConnection)
+    bool CompareConnections(Connection currentConnection, Connection comparedConnection)
     {
         // Check if both connections share the same Connector
-        if (_currentConnection._connector == _comparedConnection._connector)
+        if (currentConnection._connector == comparedConnection._connector)
         {
             // Check edge properties
             // RULINGS:
             // 1) Check if both connections properties are EXACT
-            if (_currentConnection._property == ConnectorProperty.Exact &&
-                _comparedConnection._property == ConnectorProperty.Exact)
+            if (currentConnection._property == ConnectorProperty.Exact &&
+                comparedConnection._property == ConnectorProperty.Exact)
             {
                 return true;
             }
 
 
             // 2) Check if both connections properties are OPPOSITES (FLIPPED A & B)
-            if (_currentConnection._property == ConnectorProperty.FlippedA &&
-                _comparedConnection._property == ConnectorProperty.FlippedB)
+            if (currentConnection._property == ConnectorProperty.FlippedA &&
+                comparedConnection._property == ConnectorProperty.FlippedB)
             {
                 return true;
             }
 
-            if (_currentConnection._property == ConnectorProperty.FlippedB &&
-                _comparedConnection._property == ConnectorProperty.FlippedA)
+            if (currentConnection._property == ConnectorProperty.FlippedB &&
+                comparedConnection._property == ConnectorProperty.FlippedA)
             {
                 return true;
             }
 
 
             // 3) Check if both connections are rotational, then check if they share the same rotation.
-            if (_currentConnection._property == ConnectorProperty.Rotational &&
-                _comparedConnection._property == ConnectorProperty.Rotational)
+            if (currentConnection._property == ConnectorProperty.Rotational &&
+                comparedConnection._property == ConnectorProperty.Rotational)
             {
-                if(_currentConnection._rotation == _comparedConnection._rotation)
+                if(currentConnection._rotation == comparedConnection._rotation)
                 {
                     return true;
                 }
@@ -276,15 +275,15 @@ public class CellGenerator
 
     public void Save(ref CellGroupData data)
     {
-        data._int_totalCells = _lst_cells.Count;
-        data._lst_cd_cellData = new();
-        foreach (Cell cell in _lst_cells)
+        data.TotalCells = m_cells.Count;
+        data.MicroCells = new();
+        foreach (Cell cell in m_cells)
         {
             // Cell Data
-            CellData cell_data = new CellData();
-            cell.Save(ref cell_data);
+            MicroCell microCell = new MicroCell();
+            cell.Save(ref microCell);
 
-            data._lst_cd_cellData.Add(cell_data);
+            data.MicroCells.Add(microCell);
         }
     }
 
@@ -292,13 +291,13 @@ public class CellGenerator
     {
         ResetCells();
 
-        int_totalCells = data._int_totalCells;
+        m_totalCells = data.TotalCells;
 
-        foreach (var cell in data._lst_cd_cellData)
+        foreach (var cell in data.MicroCells)
         {
-            Cell new_cell = new Cell();
-            new_cell.Load(cell);
-            _lst_cells.Add(new_cell);
+            Cell newCell = new Cell();
+            newCell.Load(cell);
+            m_cells.Add(newCell);
         }
 
         Debug.Log("LOADED NEW CELLS");

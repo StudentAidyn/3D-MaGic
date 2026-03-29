@@ -22,25 +22,12 @@ public class MapMeshCombiner
 
     // Combines Meshes of a MULTIPLE Game Object parents with their children
 
-    //IA:
-    /*
-     Instead of generating 1 single mesh, to allow for multiple meshes, each mesh that it finds will 
-    be added to a list of meshes, and each time one gets found it is added to the main list.
-
-    Unity's mesh renderer has a maximum upper limit of tris to renderer, if that limit is reached then it renders
-    nothing making this process useless. A way to count and limit the tri count to ensure unity doesn't crash could 
-    work.
-
-    Mesh.vertexCount <= gets the current vertex count
-
-     */
-    public void CombineMeshes(ref List<GameObject> local_map_objects)
+    public void CombineMeshes(ref List<GameObject> gameObjects)
     {
-
         Dictionary<Material, List<MeshFilter>> meshFilters = new Dictionary<Material, List<MeshFilter>>();
-        foreach (GameObject go in local_map_objects)
+        foreach (GameObject gameObject in gameObjects)
         {
-            CollectMeshFiltersPerGameObject(ref meshFilters, go);
+            CollectMeshFiltersPerGameObject(ref meshFilters, gameObject);
         }
 
         GenerateGameObjectsFromDictionary(meshFilters);
@@ -56,6 +43,8 @@ public class MapMeshCombiner
             AddToMeshFilter(ref meshFilters, childTransform.gameObject);
         }
     }
+
+
     private void AddToMeshFilter(ref Dictionary<Material, List<MeshFilter>> meshFilters, GameObject gameObject)
     {
         MeshFilter mf = gameObject.GetComponent<MeshFilter>();
@@ -81,11 +70,10 @@ public class MapMeshCombiner
         foreach(Material mat in meshFilters.Keys)
         {
             List<MeshFilter> listMeshFilter = meshFilters[mat];
-            Debug.Log(mat.name + " | " + listMeshFilter.Count);
-            string materialName = mat.name;
-            GameObject meshFilterObject = GenerateGameObjectFromMeshFilters(listMeshFilter, materialName);
-            MeshRenderer meshRenderer = meshFilterObject.AddComponent<MeshRenderer>();
-            meshRenderer.sharedMaterial = mat;
+            string _materialName = mat.name;
+            GameObject _meshFilterObject = GenerateGameObjectFromMeshFilters(listMeshFilter, _materialName);
+            MeshRenderer _meshRenderer = _meshFilterObject.AddComponent<MeshRenderer>();
+            _meshRenderer.sharedMaterial = mat;
         }
     }
 

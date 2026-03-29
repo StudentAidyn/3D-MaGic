@@ -6,8 +6,8 @@ using System.Drawing;
 [System.Serializable]
 public struct BitsetData
 {
-    public int int_size;
-    public int[] arr_int_data;
+    public int Size;
+    public int[] Data;
 }
 
 public class Bitset
@@ -15,9 +15,9 @@ public class Bitset
     // VARIABLES **********************************************************************************
     // ********************************************************************************************
 
-    int[] bitset;
-    int bitset_size = 0;
-    public int Size() => bitset_size;
+    private int[] BitsetArray;
+    private int m_bitsetSize = 0;
+    public int Size() => m_bitsetSize;
 
     // ********************************************************************************************
     // ********************************************************************************************
@@ -35,10 +35,10 @@ public class Bitset
         Setup(size);
     }
 
-    public Bitset(Bitset bitset_to_copy)
+    public Bitset(Bitset bitsetToCopy)
     {
-        Setup(bitset_to_copy.bitset_size);
-        Copy(bitset_to_copy);
+        Setup(bitsetToCopy.m_bitsetSize);
+        Copy(bitsetToCopy);
     }
 
     // ********************************************************************************************
@@ -50,22 +50,22 @@ public class Bitset
     // ********************************************************************************************
     private void Setup(int size)
     {
-        bitset = new int[(size / 32) + 1];
-        bitset_size = size;
+        BitsetArray = new int[(size / 32) + 1];
+        m_bitsetSize = size;
     }
 
-    public void bits_set(int[] value)
+    public void SetBits(int[] value)
     {
-        bitset = value;
+        BitsetArray = value;
     }
 
-    public bool Copy(Bitset other_bits)
+    public bool Copy(Bitset otherBitset)
     {
-        if (other_bits.bitset_size != bitset_size) return false;
+        if (otherBitset.m_bitsetSize != m_bitsetSize) return false;
 
-        for (int i = 0; i < bitset_size / 32 + 1; i++)
+        for (int i = 0; i < m_bitsetSize / 32 + 1; i++)
         {
-            bitset[i] = other_bits.bitset[i];
+            BitsetArray[i] = otherBitset.BitsetArray[i];
         }
 
         return true;
@@ -74,31 +74,31 @@ public class Bitset
     // ********************************************************************************************
     // ********************************************************************************************
 
-    public int[] bits_get()
+    public int[] GetBitset()
     {
-        return bitset;
+        return BitsetArray;
     }
 
-    public void AllSet()
+    public void SetAllBits()
     {
-        for(int i = 0; i < bitset.Length; i++)
+        for(int i = 0; i < BitsetArray.Length; i++)
         {
-            bitset[i] = -1;
+            BitsetArray[i] = -1;
         } 
     }
 
-    public void AllReset()
+    public void ResetAllBits()
     {
-        for (int i = 0; i < bitset.Length; i++)
+        for (int i = 0; i < BitsetArray.Length; i++)
         {
-            bitset[i] = 0;
+            BitsetArray[i] = 0;
         }
     }
 
     public bool IsAllReset()
     {
         bool result = true;
-        foreach(int bit in bitset)
+        foreach(int bit in BitsetArray)
         {
             if (bit != 0) result = false;
         }
@@ -106,41 +106,41 @@ public class Bitset
     }
 
 
-    public void set(int index)
+    public void SetBitAtIndex(int index)
     {
-        if (index > bitset_size) return;
-        bitset[index / 32] |= (1 << (index % 32));
+        if (index > m_bitsetSize) return;
+        BitsetArray[index / 32] |= (1 << (index % 32));
     }
 
     // Resets the bit on the index entered
-    public void reset(int index)
+    public void ResetBitAtIndex(int index)
     {
-        if (index > bitset_size) return;
-        bitset[index / 32] &= ~(1 << (index % 32));
+        if (index > m_bitsetSize) return;
+        BitsetArray[index / 32] &= ~(1 << (index % 32));
     }
 
-    public int ifset(int index)
+    public int IfSetAtIndex(int index)
     {
-        if (index > bitset_size) return -1;
+        if (index > m_bitsetSize) return -1;
 
-        return (bitset[index / 32] & (1 << index)) >> index;
+        return (BitsetArray[index / 32] & (1 << index)) >> index;
     }
 
-    public bool bifset(int index)
+    public bool IfResetAtIndex(int index)
     {
-        if (index > bitset_size) return false;
-        return (bitset[index / 32] & (1 << index)) != 0;
+        if (index > m_bitsetSize) return false;
+        return (BitsetArray[index / 32] & (1 << index)) != 0;
     }
 
     public bool this[int index]
     {
-        get { return bifset(index); }
+        get { return IfResetAtIndex(index); }
     }
 
-    public void toggle(int index)
+    public void ToggleBitAtIndex(int index)
     {
-        if (index > bitset_size) return;
-        bitset[index / 32] ^= (1 << index);
+        if (index > m_bitsetSize) return;
+        BitsetArray[index / 32] ^= (1 << index);
     }
 
 
@@ -148,10 +148,10 @@ public class Bitset
     {
         string str = "";
 
-        for (int i = 0; i < (bitset_size / 32 + 1); i++)
+        for (int i = 0; i < (m_bitsetSize / 32 + 1); i++)
         {
 
-            str += Convert.ToString(bitset[i], 2);
+            str += Convert.ToString(BitsetArray[i], 2);
         }
         return str;
     }
@@ -165,22 +165,22 @@ public class Bitset
     // ********************************************************************************************
     public static Bitset operator &(Bitset A_bits, Bitset B_bits)
     {
-        if (A_bits.bitset_size != B_bits.bitset_size) return A_bits;
+        if (A_bits.m_bitsetSize != B_bits.m_bitsetSize) return A_bits;
 
-        for (int i = 0; i < A_bits.bits_get().Length; i++)
+        for (int i = 0; i < A_bits.GetBitset().Length; i++)
         {
-            A_bits.bits_get()[i] &= B_bits.bits_get()[i];
+            A_bits.GetBitset()[i] &= B_bits.GetBitset()[i];
         }
         return A_bits;
     }
 
     public static Bitset operator |(Bitset A_bits, Bitset B_bits)
     {
-        if (A_bits.bitset_size != B_bits.bitset_size) return null;
+        if (A_bits.m_bitsetSize != B_bits.m_bitsetSize) return null;
 
-        for (int i = 0; i < A_bits.bits_get().Length; i++)
+        for (int i = 0; i < A_bits.GetBitset().Length; i++)
         {
-            A_bits.bits_get()[i] |= B_bits.bits_get()[i];
+            A_bits.GetBitset()[i] |= B_bits.GetBitset()[i];
         }
         return A_bits;
     }
@@ -188,11 +188,11 @@ public class Bitset
     // STATIC FUNCTIONS ***************************************************************************
     // ********************************************************************************************
 
-    public static bool Compare_IsSame(Bitset bitset_A, Bitset bitset_B)
+    public static bool DoesBitsetMatchOther(Bitset bitset_A, Bitset bitset_B)
     {
-        if (bitset_A.bitset_size != bitset_B.bitset_size) return false;
+        if (bitset_A.m_bitsetSize != bitset_B.m_bitsetSize) return false;
 
-        for (int i = 0; i < bitset_A.bitset_size / 32 + 1; i++)
+        for (int i = 0; i < bitset_A.m_bitsetSize / 32 + 1; i++)
         {
             if(bitset_A[i] != bitset_B[i])
             {
@@ -214,14 +214,14 @@ public class Bitset
     
     public void Save(ref BitsetData data)
     {
-        data.int_size = bitset_size;
-        data.arr_int_data = bitset;
+        data.Size = m_bitsetSize;
+        data.Data = BitsetArray;
     }
 
     public void Load(BitsetData data)
     {
-        bitset_size = data.int_size;
-        bitset = data.arr_int_data;
+        m_bitsetSize = data.Size;
+        BitsetArray = data.Data;
     }
 
     // ********************************************************************************************

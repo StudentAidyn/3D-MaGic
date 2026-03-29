@@ -12,22 +12,14 @@ public enum GenerationType
     WFC_Redux
 }
 
-public enum MapGenerationControl{
-    Generate = 0,
-    GenerateAndBuild = 1,
-    ClearAndGenerateAndBuild = 2,
-    ClearGenerateBuildCombine = 3,
-    Build = 4,
-    Combine = 5
+public enum GenerationStep{
+    GenerateBuildCombine,
+    GenerateBuild,
+    Generate,
+    Build,
+    Combine
 }
 
-public enum MapSaveLoadType
-{
-    Save,
-    Load,
-    Load_and_Build
-    
-}
 
 [ExecuteInEditMode]
 public class Map : MonoBehaviour
@@ -40,29 +32,29 @@ public class Map : MonoBehaviour
 
 
     // Map Dimension Controls 
-    [SerializeField] private Vector3 _dimensions = new Vector3(10, 3, 10);
+    [SerializeField] private Vector3 m_dimensions = new Vector3(10, 3, 10);
     
     // Map Generator Type
-    [SerializeField] private GenerationType _mapGenerationType = GenerationType.WaveFunctionCollapse;
+    [SerializeField] private GenerationType m_mapGenerationType = GenerationType.WaveFunctionCollapse;
 
     // Generation Type
-    [SerializeField] private MapGenerationControl _mapGenerationControl = MapGenerationControl.GenerateAndBuild;
+    [SerializeField] private GenerationStep m_mapGenerationControl = GenerationStep.GenerateBuild;
 
     // Seed controls
-    [SerializeField] private bool _useCurrentSeed;
+    [SerializeField] private bool m_useCurrentSeed;
 
-    [SerializeField] private ulong _currentSeed;
+    [SerializeField] private ulong m_currentSeed;
 
     // Parent Object
-    [SerializeField] private Transform _parentTransform;
+    [SerializeField] private Transform m_parentTransform;
 
     // File Name
-    [SerializeField] private string _fileName = "FILE_NAME";
+    [SerializeField] private string m_fileName = "FILE_NAME";
 
     public void UpdateDisplayData(MapGenData data)
     {
-        _dimensions = data._dimensions;
-        _currentSeed = data._seed;
+        m_dimensions = data.Dimensions;
+        m_currentSeed = data.Seed;
     }
 
     private void CheckLocalMapController()
@@ -76,26 +68,26 @@ public class Map : MonoBehaviour
     public void GenerateMap()
     {
         CheckLocalMapController();
-        LocalMapController.GenerateMap(GetMapGenerationData(), _parentTransform, MapCellComponentsList);
+        LocalMapController.GenerateMap(GetMapGenerationData(), m_parentTransform, MapCellComponentsList);
         MapCellComponentsList.Clear();
-        _currentSeed = RandomNumber.GetSeed();
+        m_currentSeed = RandomNumber.GetSeed();
     }
 
     private MapGenData GetMapGenerationData()
     {
         MapGenData mapGenData = new MapGenData();
-        mapGenData._dimensions = _dimensions;
-        mapGenData._type = _mapGenerationType;
-        mapGenData._control = _mapGenerationControl;
-        mapGenData._seed = _currentSeed;
-        mapGenData._customSeed = _useCurrentSeed;
+        mapGenData.Dimensions = m_dimensions;
+        mapGenData.Type = m_mapGenerationType;
+        mapGenData.Control = m_mapGenerationControl;
+        mapGenData.Seed = m_currentSeed;
+        mapGenData.CustomSeed = m_useCurrentSeed;
 
         return mapGenData;
     }
 
     public void ClearMap()
     {
-        LocalMapController.ClearBuiltMap();
+        LocalMapController.ClearInstantiatedMap();
     }
 
 
@@ -110,13 +102,13 @@ public class Map : MonoBehaviour
     public void SaveMap(string fileName)
     {
         if (!TryStartSaveSystem()) return;
-        DMG_SaveSystem.SaveMap(_fileName);
+        DMG_SaveSystem.SaveMap(m_fileName);
     }
 
     public void LoadMap(string fileName)
     {
         if (!TryStartSaveSystem()) return;
-        DMG_SaveSystem.LoadMap(_fileName);
+        DMG_SaveSystem.LoadMap(m_fileName);
     }
 
     public bool MapControllerCheck()

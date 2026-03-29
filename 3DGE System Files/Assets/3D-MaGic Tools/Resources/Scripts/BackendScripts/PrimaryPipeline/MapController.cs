@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 
 public struct MapGenData
 {
-    public Vector3 _dimensions;
-    public GenerationType _type;
-    public MapGenerationControl _control;
-    public ulong _seed;
-    public bool _customSeed;
+    public Vector3 Dimensions;
+    public GenerationType Type;
+    public GenerationStep Control;
+    public ulong Seed;
+    public bool CustomSeed;
 }
 
 public class MapController
@@ -21,41 +21,40 @@ public class MapController
     public MapMeshCombiner LocalMapMeshCombiner;
 
     // Private
-    private MapGenData _generationData = new();
-    private Transform _parentTransform;
-    private List<ModularMapCellComponent> _cellComponentsList;
-    private int[,,] _rawDataArray;
+    private MapGenData m_generationData = new();
+    private Transform m_parentTransform;
+    private List<ModularMapCellComponent> m_cellComponentsList;
+    private int[,,] m_rawDataArray;
 
-    private bool clearMap       = false;
-    private bool generateMap    = false;
-    private bool buildMap       = false;
-    private bool combineMap     = false;
+    private bool m_clearMap = false;
+    private bool m_generateMap = false;
+    private bool m_buildMap = false;
+    private bool m_combineMap = false;
 
-    public MapGenData GetMapGenData() => _generationData;
+    public MapGenData GetMapGenData() => m_generationData;
 
-    public void ClearBuiltMap()
+    public void ClearInstantiatedMap()
     {
-        if (LocalMapBuilder != null) LocalMapBuilder.ClearBuiltListOfGameObjects();
+        if (LocalMapBuilder != null) { LocalMapBuilder.ClearBuiltListOfGameObjects(); }
     }
 
     #region Generate
 
-    // generateMap Button
-    public void GenerateMap(MapGenData mapGenData, Transform parentTransform = null, List<ModularMapCellComponent> mapCellList = null)
+    public void GenerateMap(MapGenData mapGenerationData, Transform parentTransform = null, List<ModularMapCellComponent> mapCellList = null)
     {
-        _generationData = mapGenData;
-        _parentTransform = parentTransform;
-        _cellComponentsList = mapCellList;
+        m_generationData = mapGenerationData;
+        m_parentTransform = parentTransform;
+        m_cellComponentsList = mapCellList;
 
         if (!AreMapDimensionsPositive()) { return; }
-        SetLocalClasses();
-        InitisializeVariables();
+        SetLocalClassVariables();
+        InitializeCustomSystems();
         ExecuteMapGeneration();
     }
 
     private bool AreMapDimensionsPositive()
     {
-        if (_generationData._dimensions.x < 1 || _generationData._dimensions.y < 1 || _generationData._dimensions.z < 1)
+        if (m_generationData.Dimensions.x < 1 || m_generationData.Dimensions.y < 1 || m_generationData.Dimensions.z < 1)
         {
             return false;
         }
@@ -65,7 +64,7 @@ public class MapController
 
 
 
-    private void SetLocalClasses()
+    private void SetLocalClassVariables()
     {
         if (LocalCellGenerator == null)
         { 
@@ -94,7 +93,7 @@ public class MapController
     // Select Generator Type
     private void SetGeneratorFromType()
     {
-        switch (_generationData._type)
+        switch (m_generationData.Type)
         {
             case (GenerationType.InLineCollapse):
                 LocalMapGenerator = new InLineCollapse();
@@ -111,47 +110,47 @@ public class MapController
         }
     }
 
-    private void InitisializeVariables()
+    private void InitializeCustomSystems()
     {
         DMG_SaveSystem.Init(this);
-        RandomNumber.Init(_generationData._customSeed, _generationData._seed);
+        RandomNumber.Init(m_generationData.CustomSeed, m_generationData.Seed);
     }
     
     // Sets the output cases of the generation pipeline
     private void SetupGenerationVariables()
     {
-        switch (_generationData._control)
+        switch (m_generationData.Control)
         {
-            case MapGenerationControl.ClearAndGenerateAndBuild:
-                clearMap       = true;
-                generateMap    = true;
-                buildMap       = true;
-                combineMap     = false;
+            case GenerationStep.GenerateBuildCombine:
+                m_generateMap    = true;
+                m_buildMap       = true;
+                m_combineMap     = true;
                 break;
-            case MapGenerationControl.Generate:
-                clearMap       = false;
-                generateMap    = true;
-                buildMap       = false;
-                combineMap     = false;
+
+            case GenerationStep.GenerateBuild:
+                m_generateMap     = true;
+                m_buildMap        = true;
+                m_combineMap      = false;
                 break;
-            case MapGenerationControl.GenerateAndBuild:
-                clearMap       = false;
-                generateMap    = true;
-                buildMap       = true;
-                combineMap     = false;
+
+            case GenerationStep.Generate:
+                m_generateMap    = true;
+                m_buildMap       = false;
+                m_combineMap     = false;
                 break;
-            case MapGenerationControl.ClearGenerateBuildCombine: 
-                clearMap       = true;
-                generateMap    = true;
-                buildMap       = true;
-                combineMap     = true;
+
+            case GenerationStep.Build: 
+                m_generateMap    = false;
+                m_buildMap       = true;
+                m_combineMap     = true;
                 break;
-            case MapGenerationControl.Combine: 
-                clearMap       = false;
-                generateMap    = false;
-                buildMap       = false;
-                combineMap     = true;
+
+            case GenerationStep.Combine: 
+                m_generateMap    = false;
+                m_buildMap       = false;
+                m_combineMap     = true;
                 break;
+
             default:
                 break;
         }
@@ -161,24 +160,24 @@ public class MapController
     {
         SetupGenerationVariables();
 
-        if (clearMap)
+        if (m_clearMap)
         {
-            ClearBuiltMap();
+            ClearInstantiatedMap();
         }
 
-        if (generateMap)
+        if (m_generateMap)
         {
-            LocalCellGenerator.Init(ref _cellComponentsList);
+            LocalCellGenerator.Init(ref m_cellComponentsList);
             Generate();
         }
 
-        if (buildMap)
+        if (m_buildMap)
         {
             LocalMapBuilder.Init();
             Build();
         }
 
-        if (combineMap)
+        if (m_combineMap)
         {
             LocalMapMeshCombiner.Init();
             Combine();
@@ -188,19 +187,19 @@ public class MapController
     private void Generate()
     {
         TimeKeeper.RegisterStartTime();
-        LocalMapGenerator.Generate(_generationData._dimensions, LocalCellGenerator.Cells());
+        LocalMapGenerator.Generate(m_generationData.Dimensions, LocalCellGenerator.GetCells());
         TimeKeeper.RegisterEndTime();
         Debug.Log(TimeKeeper.GetTotalTime());
 
-        _rawDataArray = new int[(int)_generationData._dimensions.x, (int)_generationData._dimensions.y, (int)_generationData._dimensions.z];
-        LocalMapGenerator.GenerateRawMapData(ref _rawDataArray, _generationData._dimensions);
+        m_rawDataArray = new int[(int)m_generationData.Dimensions.x, (int)m_generationData.Dimensions.y, (int)m_generationData.Dimensions.z];
+        LocalMapGenerator.GenerateRawMapData(ref m_rawDataArray, m_generationData.Dimensions);
     }
 
     private void Build()
     {
-        if(_rawDataArray != null)
+        if(m_rawDataArray != null)
         {
-            LocalMapBuilder.BuildMap(_generationData._dimensions, _rawDataArray, LocalCellGenerator.Cells(), _parentTransform);
+            LocalMapBuilder.InstantiateMap(m_generationData.Dimensions, m_rawDataArray, LocalCellGenerator.GetCells(), m_parentTransform);
         }
         else
         {
@@ -219,7 +218,7 @@ public class MapController
             if (local_map_objects.Count > 0)
             {
                 LocalMapMeshCombiner.CombineMeshes(ref local_map_objects);
-                _parentTransform.gameObject.SetActive(false);
+                m_parentTransform.gameObject.SetActive(false);
             }
         }
     }
@@ -232,20 +231,20 @@ public class MapController
     public void Save(ref GenData _data)
     {
 
-        _data._Dimensions = _generationData._dimensions;
-        _data._Seed = _generationData._seed;
+        _data._Dimensions = m_generationData.Dimensions;
+        _data._Seed = m_generationData.Seed;
 
         if (LocalMapGenerator != null)
         {
-            int[,,] rawMapData = new int[(int)_generationData._dimensions.x, (int)_generationData._dimensions.y, (int)_generationData._dimensions.z];
-            LocalMapGenerator.GenerateRawMapData(ref rawMapData, _generationData._dimensions);
+            int[,,] rawMapData = new int[(int)m_generationData.Dimensions.x, (int)m_generationData.Dimensions.y, (int)m_generationData.Dimensions.z];
+            LocalMapGenerator.GenerateRawMapData(ref rawMapData, m_generationData.Dimensions);
 
-            _data._RawGenData = new int[(int)(_generationData._dimensions.x * _generationData._dimensions.y * _generationData._dimensions.z)];
-            for (int z = 0; z < _generationData._dimensions.z; z++)
+            _data._RawGenData = new int[(int)(m_generationData.Dimensions.x * m_generationData.Dimensions.y * m_generationData.Dimensions.z)];
+            for (int z = 0; z < m_generationData.Dimensions.z; z++)
             {
-                for (int y = 0; y < _generationData._dimensions.y; y++)
+                for (int y = 0; y < m_generationData.Dimensions.y; y++)
                 {
-                    for (int x = 0; x < _generationData._dimensions.x; x++)
+                    for (int x = 0; x < m_generationData.Dimensions.x; x++)
                     {
                         _data._RawGenData[x + (int)_data._Dimensions.z * (y + (int)_data._Dimensions.y * z)] = rawMapData[x, y, z];
                     }
@@ -257,10 +256,10 @@ public class MapController
 
     public void Load(GenData _data)
     {
-        _generationData._dimensions = _data._Dimensions;
-        _generationData._seed = _data._Seed;
+        m_generationData.Dimensions = _data._Dimensions;
+        m_generationData.Seed = _data._Seed;
 
-        _rawDataArray = new int[(int)_generationData._dimensions.x, (int)_generationData._dimensions.y, (int)_generationData._dimensions.z];
+        m_rawDataArray = new int[(int)m_generationData.Dimensions.x, (int)m_generationData.Dimensions.y, (int)m_generationData.Dimensions.z];
 
         for (int z = 0; z < _data._Dimensions.z; z++)
         {
@@ -268,7 +267,7 @@ public class MapController
             {
                 for (int x = 0; x < _data._Dimensions.x; x++)
                 {
-                    _rawDataArray[x, y, z] = _data._RawGenData[x + (int)_data._Dimensions.z * (y + (int)_data._Dimensions.y * z)];
+                    m_rawDataArray[x, y, z] = _data._RawGenData[x + (int)_data._Dimensions.z * (y + (int)_data._Dimensions.y * z)];
                 }
             }
         }

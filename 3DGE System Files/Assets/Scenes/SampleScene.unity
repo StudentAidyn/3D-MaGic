@@ -264,7 +264,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &450152828
 Transform:
   m_ObjectHideFlags: 0
@@ -394,6 +394,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Generator
       objectReference: {fileID: 0}
+    - target: {fileID: 2901058418638757387, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2901058418638757389, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -436,19 +440,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4439367445091064699, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
       propertyPath: _currentSeed
-      value: 63909803679014
-      objectReference: {fileID: 0}
-    - target: {fileID: 4439367445091064699, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
-      propertyPath: _dimensions.x
-      value: 100
-      objectReference: {fileID: 0}
-    - target: {fileID: 4439367445091064699, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
-      propertyPath: _dimensions.y
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 4439367445091064699, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
-      propertyPath: _dimensions.z
-      value: 100
+      value: 63895642416853
       objectReference: {fileID: 0}
     - target: {fileID: 4439367445091064699, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
       propertyPath: _parentTransform
@@ -456,12 +448,48 @@ PrefabInstance:
       objectReference: {fileID: 450152828}
     - target: {fileID: 4439367445091064699, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
       propertyPath: _mapGenerationType
-      value: 2
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4439367445091064699, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
       propertyPath: _mapGenerationControl
-      value: 5
+      value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4439367445091064699, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
+      propertyPath: MapCellComponentsList.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4439367445091064699, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
+      propertyPath: 'MapCellComponentsList.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 58e5b88c092e75d4c9467afbf7e48da4, type: 2}
+    - target: {fileID: 4439367445091064699, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
+      propertyPath: 'MapCellComponentsList.Array.data[1]'
+      value: 
+      objectReference: {fileID: 11400000, guid: d3645ad2ddf601e4e8bcd9ebac7931c5, type: 2}
+    - target: {fileID: 4439367445091064699, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
+      propertyPath: 'MapCellComponentsList.Array.data[2]'
+      value: 
+      objectReference: {fileID: 11400000, guid: b39afffdfa3dd894bb5506e2c9ef6d77, type: 2}
+    - target: {fileID: 4439367445091064699, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
+      propertyPath: 'MapCellComponentsList.Array.data[3]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 8df9b416e6313d34f9857d67f688c9fb, type: 2}
+    - target: {fileID: 4439367445091064699, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
+      propertyPath: 'MapCellComponentsList.Array.data[4]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 7754b64a025187040bd33ea67206564a, type: 2}
+    - target: {fileID: 4439367445091064699, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
+      propertyPath: 'MapCellComponentsList.Array.data[5]'
+      value: 
+      objectReference: {fileID: 11400000, guid: ae2f82f89dec7254cafdf2e7f7fa23f2, type: 2}
+    - target: {fileID: 4439367445091064699, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
+      propertyPath: 'MapCellComponentsList.Array.data[6]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 0e61502d92a42de49a72bb142e3d2a6d, type: 2}
+    - target: {fileID: 4439367445091064699, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
+      propertyPath: 'MapCellComponentsList.Array.data[7]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 4a8b493f0b438c44690deb842df23f2e, type: 2}
     m_RemovedComponents:
     - {fileID: 8606967001817548036, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
     m_RemovedGameObjects: []

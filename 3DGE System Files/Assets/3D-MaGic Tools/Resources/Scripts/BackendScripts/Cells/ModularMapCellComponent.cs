@@ -34,26 +34,26 @@ public class ModularMapCellComponent : ScriptableObject
         Connector _Y, Connector _nY, 
         Connector _Z, Connector _nZ)
     {
-        _validConnections[(int)connector_edge.Z]. SetConnector(_Z);
-        _validConnections[(int)connector_edge.nZ].SetConnector(_nZ);
+        _validConnections[(int)ConnectorEdge.Z]. SetConnector(_Z);
+        _validConnections[(int)ConnectorEdge.nZ].SetConnector(_nZ);
 
-        _validConnections[(int)connector_edge.X]. SetConnector(_X);
-        _validConnections[(int)connector_edge.nX].SetConnector(_nX);
+        _validConnections[(int)ConnectorEdge.X]. SetConnector(_X);
+        _validConnections[(int)ConnectorEdge.nX].SetConnector(_nX);
 
-        _validConnections[(int)connector_edge.Y]. SetConnector(_Y);
-        _validConnections[(int)connector_edge.nY].SetConnector(_nY);
+        _validConnections[(int)ConnectorEdge.Y]. SetConnector(_Y);
+        _validConnections[(int)ConnectorEdge.nY].SetConnector(_nY);
     }
     // an array of valid neighbours
      [SerializeField] ValidConnections[] _validConnections = {
-        new ValidConnections(connector_edge.Z),
-        new ValidConnections(connector_edge.X),
-        new ValidConnections(connector_edge.nZ),
-        new ValidConnections(connector_edge.nX),
-        new ValidConnections(connector_edge.Y),
-        new ValidConnections(connector_edge.nY)
+        new ValidConnections(ConnectorEdge.Z),
+        new ValidConnections(ConnectorEdge.X),
+        new ValidConnections(ConnectorEdge.nZ),
+        new ValidConnections(ConnectorEdge.nX),
+        new ValidConnections(ConnectorEdge.Y),
+        new ValidConnections(ConnectorEdge.nY)
     };
 
-    public ValidConnections GetValidConnectionsWith_(connector_edge _connectorEdge)
+    public ValidConnections GetValidConnectionsWith_(ConnectorEdge _connectorEdge)
     {
         for (int i = 0; i < _validConnections.Length; i++)
         {
@@ -66,7 +66,7 @@ public class ModularMapCellComponent : ScriptableObject
         return null;
     }
 
-    public bool CanGetConnection(connector_edge _connectorEdge, ref ValidConnections _validConnection)
+    public bool CanGetConnection(ConnectorEdge _connectorEdge, ref ValidConnections _validConnection)
     {
         for (int i = 0; i < _validConnections.Length; i++)
         {
@@ -80,7 +80,7 @@ public class ModularMapCellComponent : ScriptableObject
         return false;
     }
 
-    public Connection GetConnectionWith_(connector_edge _connectorEdge)
+    public Connection GetConnectionWith_(ConnectorEdge _connectorEdge)
     {
         ValidConnections valid_connection = new ValidConnections(_connectorEdge);
 
@@ -102,15 +102,15 @@ public class ModularMapCellComponent : ScriptableObject
 public class ValidConnections
 {
     // the name of the side
-    [SerializeField] private connector_edge _connectorEdge = 0; // by default every edge will be set to Z
+    [SerializeField] private ConnectorEdge _connectorEdge = 0; // by default every edge will be SetBitAtIndex to Z
     [SerializeField] private Connection _connection = new Connection();
 
-    public ValidConnections(connector_edge _edge) {
+    public ValidConnections(ConnectorEdge _edge) {
         _connectorEdge = _edge;
     }
 
     // Variable Controls
-    public connector_edge GetConnectorEdge() { return _connectorEdge; }
+    public ConnectorEdge GetConnectorEdge() { return _connectorEdge; }
     public void SetConnector(Connector _connector) { _connection._connector = _connector; }
     public Connection GetConnection() { return _connection; }
 }
@@ -123,7 +123,7 @@ public struct Connection
     public sbyte _rotation;
 }
 
-public enum connector_edge
+public enum ConnectorEdge
 {
     Z = 0,
     X = 1,

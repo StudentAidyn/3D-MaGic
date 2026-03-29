@@ -25,7 +25,7 @@
             </ui:VisualElement>
             <ui:VisualElement name="Buttons" label="Dimensions" class="section" style="width: 100%; flex-direction: row; align-items: stretch; justify-content: center; background-color: rgba(0, 0, 0, 0);">
                 <ui:Button text="GENERATE" name="Bt_Generate" class="button" style="width: 70%;" />
-                <ui:Button text="CLEAR GENERATED" name="Bt_Clear" class="button" style="width: 30%; white-space: normal; align-self: auto; align-items: auto;" />
+                <ui:Button text="CLEAR LAST" name="Bt_Clear" class="button" style="width: 30%; white-space: normal; align-self: auto; align-items: auto;" />
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>

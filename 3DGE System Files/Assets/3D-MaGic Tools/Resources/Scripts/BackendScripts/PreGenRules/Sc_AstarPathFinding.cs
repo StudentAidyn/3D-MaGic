@@ -20,13 +20,13 @@ public class Sc_AstarPathFinding
 
     //Vector3 mapDimensions;
 
-    //public List<ModularMapCell> GeneratePath(ModularMapCell[,,] _map, Vector3 _dimensions, int _traversalPoints = 2/*, bool _randomPoints = true */)
+    //public List<ModularMapCell> GeneratePath(ModularMapCell[,,] _map, Vector3 m_dimensions, int _traversalPoints = 2/*, bool _randomPoints = true */)
     //{
     //    if(_traversalPoints < 2) return null;
 
     //    // Sets the local variables
     //    Map = _map;
-    //    mapDimensions = _dimensions;
+    //    mapDimensions = m_dimensions;
 
     //    // Points - randomly generated points wihtin the map
     //    List<ModularMapCell> Points = new List<ModularMapCell>();
