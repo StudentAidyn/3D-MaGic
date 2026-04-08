@@ -11,15 +11,14 @@ using UnityEngine;
 [CustomEditor(typeof(Map))]
 public class MapEditor : Editor
 {
-    public VisualTreeAsset _visualTree;
+    public VisualTreeAsset LocalVisualTree;
 
     private Map m_map;
+
     private Button m_generateButton;
     private Button m_clearGeneratedButton;
     private Button m_saveButton;
     private Button m_loadButton;
-
-    private SerializedProperty m_fileNameValue;
 
     private PropertyField m_toggleSeed;
     private VisualElement m_elementsToHide;
@@ -28,8 +27,7 @@ public class MapEditor : Editor
     private void OnEnable()
     {
         m_map = (Map)target;
-        m_seedValue = serializedObject.FindProperty("_useCurrentSeed");
-        m_fileNameValue = serializedObject.FindProperty("_fileName");
+        m_seedValue = serializedObject.FindProperty("m_useCurrentSeed");
     }
 
     public override VisualElement CreateInspectorGUI()
@@ -37,27 +35,27 @@ public class MapEditor : Editor
 
         VisualElement root = new VisualElement();
 
-        _visualTree.CloneTree(root);
-        
+        LocalVisualTree.CloneTree(root);
+
         //find and assign buttons
-        m_generateButton = root.Q<Button>("Bt_Generate");
+        m_generateButton = root.Q<Button>("gen-buttons__generate");
         m_generateButton.RegisterCallback<ClickEvent>(GenerateClick);
 
-        m_clearGeneratedButton = root.Q<Button>("Bt_Clear");
+        m_clearGeneratedButton = root.Q<Button>("gen-buttons__clear-prev");
         m_clearGeneratedButton.RegisterCallback<ClickEvent>(ClearClick);
 
-        m_saveButton = root.Q<Button>("Bt_Save");
+        m_saveButton = root.Q<Button>("save-load__save");
         m_saveButton.RegisterCallback<ClickEvent>(SaveClick);
 
 
-        m_loadButton = root.Q<Button>("Bt_Load");
+        m_loadButton = root.Q<Button>("save-load__load");
         m_loadButton.RegisterCallback<ClickEvent>(LoadClick);
 
 
-        m_toggleSeed = root.Q<PropertyField>("CustSeed");
-        m_toggleSeed.RegisterCallback<ChangeEvent<bool>>(OnBoolChange_Seed);
+        m_toggleSeed = root.Q<PropertyField>("seed-group__custom-check");
+        m_toggleSeed.RegisterCallback<ChangeEvent<bool>>(OnBoolChangeSeed);
 
-        m_elementsToHide = root.Q<VisualElement>("Seed");
+        m_elementsToHide = root.Q<VisualElement>("seed-group__value");
 
         DisplayCheck();
 
@@ -74,7 +72,7 @@ public class MapEditor : Editor
         m_map.ClearMap();
     }
     
-    private void OnBoolChange_Seed(ChangeEvent<bool> evt)
+    private void OnBoolChangeSeed(ChangeEvent<bool> evt)
     {
         DisplayCheck();
     }
@@ -101,13 +99,13 @@ public class MapEditor : Editor
 
     private void LoadClick(ClickEvent _event)
     {
-        m_map.LoadMap(m_fileNameValue.stringValue);
+        m_map.LoadMap();
         m_map.UpdateDisplayData(m_map.LocalMapController.GetMapGenData());
     }
 
     private void SaveClick(ClickEvent _event)
     {
-        m_map.SaveMap(m_fileNameValue.stringValue);
+        m_map.SaveMap();
     }
 
     #endregion

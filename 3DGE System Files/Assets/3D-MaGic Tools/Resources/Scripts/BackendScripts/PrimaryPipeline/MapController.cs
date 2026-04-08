@@ -14,7 +14,7 @@ public struct MapGenData
 
 public class MapController
 {
-    // Public Variables - Classes
+    // Public - Classes
     public CellGenerator LocalCellGenerator;
     public MapGenerator LocalMapGenerator;
     public MapBuilder LocalMapBuilder;

@@ -1,7 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using UnityEditor.PackageManager;
 using UnityEngine;
 
 // RELATED ENUMS
@@ -30,26 +27,18 @@ public class Map : MonoBehaviour
 
     public MapController LocalMapController;
 
+    // Save Controls
+    [SerializeField] private string m_fileName = "FILE_NAME";
 
-    // Map Dimension Controls 
+    // Generation Controls 
     [SerializeField] private Vector3 m_dimensions = new Vector3(10, 3, 10);
-    
-    // Map Generator Type
-    [SerializeField] private GenerationType m_mapGenerationType = GenerationType.WaveFunctionCollapse;
-
-    // Generation Type
-    [SerializeField] private GenerationStep m_mapGenerationControl = GenerationStep.GenerateBuild;
-
-    // Seed controls
-    [SerializeField] private bool m_useCurrentSeed;
-
-    [SerializeField] private ulong m_currentSeed;
-
-    // Parent Object
+    [SerializeField] private GenerationType m_mapGenerationType;
+    [SerializeField] private GenerationStep m_mapGenerationControl;
     [SerializeField] private Transform m_parentTransform;
 
-    // File Name
-    [SerializeField] private string m_fileName = "FILE_NAME";
+    // Seed Controls
+    [SerializeField] private bool m_useCurrentSeed;
+    [SerializeField] private ulong m_currentSeed;
 
     public void UpdateDisplayData(MapGenData data)
     {
@@ -99,13 +88,13 @@ public class Map : MonoBehaviour
         DMG_SaveSystem.Init(LocalMapController);
         return true;
     }
-    public void SaveMap(string fileName)
+    public void SaveMap()
     {
         if (!TryStartSaveSystem()) return;
         DMG_SaveSystem.SaveMap(m_fileName);
     }
 
-    public void LoadMap(string fileName)
+    public void LoadMap()
     {
         if (!TryStartSaveSystem()) return;
         DMG_SaveSystem.LoadMap(m_fileName);

@@ -101,7 +101,7 @@ public class InLineCollapse : MapGenerator
                     {
                         CollapseCell(ref modular_map_cell);
 
-                        Update_EdgesWithin_(new Vector3(x, y, z), localMapDimensions, xFlow, zFlow);
+                        UpdateEdgesWithinCoordinate(new Vector3(x, y, z), xFlow, zFlow);
 
                         await Task.Yield();
                     }

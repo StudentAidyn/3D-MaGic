@@ -1,8 +1,6 @@
-using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-using System.Collections;
 
 
 [System.Serializable]
@@ -27,9 +25,6 @@ public struct MicroCell
 [ExecuteInEditMode]
 public class CellGenerator
 {
-    // VARIABLES *************************************************************************************************
-    // ***********************************************************************************************************
-
     // Generated GetCells
     private List<Cell> m_cells = new();
     //private Dictionary<int, Cell> dict_int_cl_cells;
@@ -41,13 +36,12 @@ public class CellGenerator
     public int GetCellCount() => m_totalCells;
 
 
-    // ***********************************************************************************************************
-    // ***********************************************************************************************************
-
 
     public CellGenerator()
     {
     }
+
+    #region PUBLIC-METHODS
 
     public void Init(ref List<ModularMapCellComponent> mapCellComponents)
     {
@@ -87,6 +81,10 @@ public class CellGenerator
 
     }
 
+    #endregion
+
+    #region PRIVATE-METHODS
+
     private void Sort(ref List<ModularMapCellComponent> mapCellComponents)
     {
         mapCellComponents = mapCellComponents.OrderBy(item => ((item.GetMesh() != null) ? item.GetMesh().name : " ")).ToList();
@@ -98,11 +96,6 @@ public class CellGenerator
         m_cells.Clear();
         m_totalCells = 0;
     }
-
-
-
-    // GENERATOR *************************************************************************************************
-    // ***********************************************************************************************************
 
     // generate connections based on the connection rules - can generate during editor (out of play state)
     private void CreateConnections(in List<ModularMapCellComponent> mapCellComponents)
@@ -218,7 +211,7 @@ public class CellGenerator
     }
 
     // Compares 2 Edges passed through based on the rules given 
-    bool CompareConnections(Connection currentConnection, Connection comparedConnection)
+    private bool CompareConnections(Connection currentConnection, Connection comparedConnection)
     {
         // Check if both connections share the same Connector
         if (currentConnection.Connector == comparedConnection.Connector)
@@ -262,16 +255,9 @@ public class CellGenerator
         return false;
     }
 
-    // ***********************************************************************************************************
-    // ***********************************************************************************************************
+    #endregion
 
-
-
-
-
-
-    // SAVE & LOAD ***********************************************************************************************
-    // ***********************************************************************************************************
+    #region SAVE-LOAD
 
     public void Save(ref CellGroupData data)
     {
@@ -303,8 +289,7 @@ public class CellGenerator
         Debug.Log("LOADED NEW CELLS");
     }
 
-    // ***********************************************************************************************************
-    // ***********************************************************************************************************
+    #endregion
 }
 
 
