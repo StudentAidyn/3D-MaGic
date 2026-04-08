@@ -19,6 +19,13 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class InLineCollapse : MapGenerator
 {
+    private int m_depthDirection;
+    private int m_horizontalDirection;
+    
+    private Vector3 m_horizontal;
+    private Vector3 m_vertical;
+    private Vector3 m_depth;
+
     #region PUBLIC-METHODS
     /// this WFC cycles through the whole array every time,
     /// using overlapping chunks will help with performance and accuracy.
@@ -44,7 +51,11 @@ public class InLineCollapse : MapGenerator
 
         int depthDirection = 1;
         int horizontalDirection = 1;
-        
+
+        m_horizontal = new Vector3(m_horizontalDirection, 0, 0);
+        m_vertical = new Vector3(0, 1, 0);
+        m_depth = new Vector3(0, 0, m_depthDirection);
+
         //** Counts the number of executions, can be used to debug
         //int executionCounter = 0;
 
@@ -64,18 +75,26 @@ public class InLineCollapse : MapGenerator
                         CollapseCell(ref modularMapCell);
 
                         Vector3 newModuleCoord = new Vector3(horizontalPosition, verticalPosition, depthPosition);
-                        UpdateEdgesWithinCoordinate(newModuleCoord, horizontalDirection, depthDirection);
+                        UpdateEdgesWithinCoordinate(newModuleCoord);
 
                         //** debugging
                         //executionCounter++;
                     }
                     horizontalPosition += horizontalDirection;
                 }
-                horizontalDirection *= -1; // swap horizontal direction
+            
+                horizontalDirection *= -1; // swap m_horizontal direction
+                m_horizontalDirection = horizontalDirection;
+                m_horizontal = new Vector3(m_horizontalDirection, 0, 0);
+
                 horizontalPosition += horizontalDirection;
                 depthPosition += depthDirection;
             }
-            depthDirection *= -1; // swap depth direction
+            
+            depthDirection *= -1; // swap m_depth direction
+            m_depthDirection = depthDirection;
+            m_depth = new Vector3(0, 0, m_depthDirection);
+
             depthPosition += depthDirection;
         }
     }
@@ -84,20 +103,20 @@ public class InLineCollapse : MapGenerator
 
     #region PRIVATE-METHODS
 
-    // Example 1: edge(Z) = 0, flow(-1)
+    // Example 1: edge(Z) = 0, direction(-1)
     // 2 = ((-1 + 3) % 4) + 0
     // 2 = (2 % 4) + 0
     // 2 = 2 + 0 => nZ
-    // Example 2: edge(Z) = 0, flow(1)
+    // Example 2: edge(Z) = 0, direction(1)
     // 0 = ((1 + 3) % 4) + 0
     // 0 = (4 % 4) + 0
     // 0 = 0 + 0 => Z
-    private ConnectorEdge GetConnectorEdge(ConnectorEdge edge, int flow)
+    private ConnectorEdge GetConnectorEdge(ConnectorEdge edge, int direction)
     {
         int connectorNormalizeValue = 3;
         int cappingValue = 4;
 
-        int normalizedFlow = connectorNormalizeValue + flow;
+        int normalizedFlow = connectorNormalizeValue + direction;
         int modulusFlow = normalizedFlow % cappingValue;
 
         int edgeAsInt = (int)edge;
@@ -107,40 +126,37 @@ public class InLineCollapse : MapGenerator
         return (ConnectorEdge)newEdgeValueAsInt;
     }
 
-    private void UpdateEdgesWithinCoordinate(Vector3 currentModuleCoordinate, int horizontalFlow, int depthFlow)
+    private void UpdateEdgesWithinCoordinate(Vector3 currentModuleCoordinate)
     {
         ModularMapCell currentModule = GetModule(currentModuleCoordinate);
         int currentModuleID = currentModule.Module;
 
 
-        ConnectorEdge horizontalEdge = GetConnectorEdge(ConnectorEdge.X, depthFlow);
+        ConnectorEdge horizontalEdge = GetConnectorEdge(ConnectorEdge.X, m_depthDirection);
         Bitset horizontalOptions = GetEdgeOptionsFromID(horizontalEdge, currentModuleID);
 
-        Vector3 horizontal = new Vector3(horizontalFlow, 0, 0);
-        Vector3 horizontalCoordinate = currentModuleCoordinate + horizontal;
+        Vector3 horizontalCoordinate = currentModuleCoordinate + m_horizontal;
         
         ApplyOptionsToModuleAtCoordinate(horizontalOptions, horizontalCoordinate);
-        ApplyAllOptionsToNextEdges(horizontalCoordinate, horizontalFlow, depthFlow);
+        ApplyAllOptionsToNextEdges(horizontalCoordinate);
 
 
         ConnectorEdge verticalEdge = ConnectorEdge.Y;
         Bitset verticalOptions = GetEdgeOptionsFromID(verticalEdge, currentModuleID);
 
-        Vector3 vertical = new Vector3(0, 1, 0);
-        Vector3 verticalCoordinate = currentModuleCoordinate + vertical;
+        Vector3 verticalCoordinate = currentModuleCoordinate + m_vertical;
         
         ApplyOptionsToModuleAtCoordinate(verticalOptions, verticalCoordinate);
-        ApplyAllOptionsToNextEdges(verticalCoordinate, horizontalFlow, depthFlow);
+        ApplyAllOptionsToNextEdges(verticalCoordinate);
 
 
-        ConnectorEdge depthEdge = GetConnectorEdge(ConnectorEdge.Z, depthFlow);
+        ConnectorEdge depthEdge = GetConnectorEdge(ConnectorEdge.Z, m_depthDirection);
         Bitset depthOptions = GetEdgeOptionsFromID(depthEdge, currentModuleID);
 
-        Vector3 depth = new Vector3(0, 0, depthFlow);
-        Vector3 depthCoordinate = currentModuleCoordinate + depth;
+        Vector3 depthCoordinate = currentModuleCoordinate + m_depth;
 
         ApplyOptionsToModuleAtCoordinate(depthOptions, depthCoordinate);
-        ApplyAllOptionsToNextEdges(depthCoordinate, horizontalFlow, depthFlow);
+        ApplyAllOptionsToNextEdges(depthCoordinate);
     }
 
     private void ApplyOptionsToModuleAtCoordinate(Bitset options, Vector3 moduleCoordinate)
@@ -153,18 +169,20 @@ public class InLineCollapse : MapGenerator
         }
     }
 
-    private void ApplyAllOptionsToNextEdges(Vector3 moduleCoordinate, int horizontalDirection, int depthDirection)
+    private void ApplyAllOptionsToNextEdges(Vector3 moduleCoordinate)
     {
-        ApplyAllOptionsToModuleAtCoordinate(moduleCoordinate, new Vector3(horizontalDirection, 0, 0), ConnectorEdge.X, horizontalDirection);
-        ApplyAllOptionsToModuleAtCoordinate(moduleCoordinate, new Vector3(0, 0, depthDirection), ConnectorEdge.Z, depthDirection);
+        ConnectorEdge horizontalEdge = GetConnectorEdge(ConnectorEdge.X, m_horizontalDirection);
+        ApplyAllOptionsToModuleAtCoordinate(moduleCoordinate, m_horizontal, horizontalEdge);
+
+        ConnectorEdge depthEdge = GetConnectorEdge(ConnectorEdge.Z, m_depthDirection);
+        ApplyAllOptionsToModuleAtCoordinate(moduleCoordinate, m_vertical, depthEdge);
     }
 
-    private void ApplyAllOptionsToModuleAtCoordinate(Vector3 moduleCoordinate, Vector3 additionalCoordinates, ConnectorEdge edge, int direction)
+    private void ApplyAllOptionsToModuleAtCoordinate(Vector3 moduleCoordinate, Vector3 additionalCoordinates, ConnectorEdge edge)
     {
         ModularMapCell currentModule = GetModule(moduleCoordinate);
-        ConnectorEdge newEdge = GetConnectorEdge(edge, direction);
 
-        Bitset allOptions = GetAllEdgeOptionsFromEdge(newEdge, currentModule.Options);
+        Bitset allOptions = GetAllEdgeOptionsFromEdge(edge, currentModule.Options);
         Vector3 newCoordinate = moduleCoordinate + additionalCoordinates;
 
         ApplyOptionsToModuleAtCoordinate(allOptions, newCoordinate);
