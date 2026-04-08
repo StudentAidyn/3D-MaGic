@@ -20,51 +20,43 @@ public class MapGenerator
     public ModularMapCell[,,] GetMap() { return m_mapArray; }
 
     // GenerateMap Function
-    public virtual void Generate(Vector3 dimensions, List<Cell> cellsList) { }
+    public virtual void Generate(Vector3 dimensions, ref ModularMapCell[,,] mapArray, List<Cell> cellsList) { }
 
-    public virtual async Task GenerateAsync(Vector3 dimensions, List<Cell> cellList) { }
-
-    public void GenerateRawMapData(ref int[,,] rawDataArrayReference, Vector3 dimensions)
-    {
-        for (int z = 0; z < dimensions.z; z++)
-        {
-            for (int y = 0; y < dimensions.y; y++)
-            {
-                for (int x = 0; x < dimensions.x; x++)
-                {
-                    rawDataArrayReference[x, y, z] = m_mapArray[x, y, z].Module;
-                }
-
-            }
-        }
-    }
 
     #endregion
 
     #region PRIVATE-METHODS
-    protected virtual void Init(Vector3 dimensions, List<Cell> cellsList)
+    protected virtual void Init(Vector3 dimensions, ref ModularMapCell[,,] mapArray, List<Cell> cellsList)
     {
         m_dimensions = dimensions;
-        m_mapArray =
-            new ModularMapCell[
-                (int)dimensions.x,
-                (int)dimensions.y,
-                (int)dimensions.z];
+        m_cellsList = cellsList;
 
-        int bitsetSize = cellsList.Count;
-
-        for (int z = 0; z < dimensions.z; z++)
+        m_mapArray = mapArray;
+        if(m_mapArray == null)
         {
-            for (int y = 0; y < dimensions.y; y++)
+            SetUpMapArray();
+        }
+    }
+
+    protected void SetUpMapArray()
+    {
+        m_mapArray = new ModularMapCell[
+                (int)m_dimensions.x,
+                (int)m_dimensions.y,
+                (int)m_dimensions.z];
+
+        int bitsetSize = m_cellsList.Count;
+
+        for (int z = 0; z < m_dimensions.z; z++)
+        {
+            for (int y = 0; y < m_dimensions.y; y++)
             {
-                for (int x = 0; x < dimensions.x; x++)
+                for (int x = 0; x < m_dimensions.x; x++)
                 {
                     m_mapArray[x, y, z] = new ModularMapCell(bitsetSize);
                 }
             }
         }
-
-        m_cellsList = cellsList;
     }
 
     protected ref ModularMapCell GetModule(Vector3 mapPosition)
@@ -97,7 +89,7 @@ public class MapGenerator
     }
 
     // Non-Collapsed Object Options
-    protected Bitset GetAllEdgeOptionsFromID(ConnectorEdge connectorEdge, Bitset currentOptions)
+    protected Bitset GetAllEdgeOptionsFromEdge(ConnectorEdge connectorEdge, Bitset currentOptions)
     {
         // create new BitsetArray to store new found options => ensure it is ResetBitAtIndex upon creation
         Bitset foundOptions = new Bitset(currentOptions.Size());

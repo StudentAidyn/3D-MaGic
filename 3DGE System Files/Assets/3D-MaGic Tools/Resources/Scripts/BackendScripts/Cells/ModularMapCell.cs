@@ -4,7 +4,7 @@ public class ModularMapCell
 {
     // + Variables +
 
-    // Module Type:
+    // Module m_type:
     public int Module = -1;
     public Bitset Options;
 

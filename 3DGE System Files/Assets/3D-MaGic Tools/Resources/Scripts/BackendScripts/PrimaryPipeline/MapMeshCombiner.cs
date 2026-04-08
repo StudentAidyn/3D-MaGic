@@ -10,8 +10,6 @@ public class MapMeshCombiner
 
     #region PUBLIC-METHODS
 
-    public void Init() { }
-
     // Combines Meshes of a SINGLE Game Object parent with their children
     public void CombineMeshes(GameObject gameObject)
     {

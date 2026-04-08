@@ -5,8 +5,7 @@ using UnityEngine;
 public enum GenerationType
 {
     InLineCollapse,
-    WaveFunctionCollapse,
-    WFC_Redux
+    WaveFunctionCollapse
 }
 
 public enum GenerationStep{
@@ -36,7 +35,7 @@ public class Map : MonoBehaviour
     [SerializeField] private GenerationStep m_mapGenerationControl;
     [SerializeField] private Transform m_parentTransform;
 
-    // Seed Controls
+    // m_seed Controls
     [SerializeField] private bool m_useCurrentSeed;
     [SerializeField] private ulong m_currentSeed;
 
@@ -69,7 +68,6 @@ public class Map : MonoBehaviour
         mapGenData.Type = m_mapGenerationType;
         mapGenData.Control = m_mapGenerationControl;
         mapGenData.Seed = m_currentSeed;
-        mapGenData.CustomSeed = m_useCurrentSeed;
 
         return mapGenData;
     }

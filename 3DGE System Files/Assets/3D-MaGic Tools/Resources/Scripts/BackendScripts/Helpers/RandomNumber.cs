@@ -1,7 +1,7 @@
 using System;
 public static class RandomNumber
 {
-    // Random Seed
+    // Random m_seed
     static private ulong s_seed = 0;
     static private ulong s_counter = 0;
     static private ulong[] s_memory;

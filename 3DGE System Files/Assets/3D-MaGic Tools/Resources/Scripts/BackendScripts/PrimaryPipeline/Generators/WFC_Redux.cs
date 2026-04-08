@@ -42,9 +42,9 @@ public class WFC_Redux : MapGenerator
 
     public void SetTotalPropagations(int totalPropagations) => m_totalPropagations = totalPropagations;
 
-    public override void Generate(Vector3 localMapDimensions, List<Cell> cellList)
+    public override void Generate(Vector3 localMapDimensions, ref ModularMapCell[,,] mapArray, List<Cell> cellList)
     {
-        Init(localMapDimensions, cellList);
+        Init(localMapDimensions, ref mapArray, cellList);
 
         // Collapse the corner first
         CollapseModule(Vector3.zero);
@@ -58,27 +58,6 @@ public class WFC_Redux : MapGenerator
             {
                 return;
             }
-        }
-    }
-
-    /// this WFC cycles through the whole array every time
-    public override async Task GenerateAsync(Vector3 localMapDimensions, List<Cell> cellList)
-    {
-        Init(localMapDimensions, cellList);
-
-        // Collapse the corner first
-        CollapseModule(Vector3.zero);
-        Propagate(Vector3.zero);
-
-
-        // Loops until the all Modules are collapsed - this is where the loop needs to be freed to properly generate it correctly
-        while (m_totalCurrentlyCollapsedModules < m_totalModules)
-        {
-            if (!Iterate())
-            {
-                return;
-            }
-            await Task.Yield();
         }
     }
 
@@ -86,9 +65,9 @@ public class WFC_Redux : MapGenerator
 
     #region PRIVATE-METHODS
 
-    protected override void Init(Vector3 mapSize, List<Cell> cells)
+    protected override void Init(Vector3 mapSize, ref ModularMapCell[,,] mapArray, List<Cell> cells)
     {
-        base.Init(mapSize, cells);
+        base.Init(mapSize, ref mapArray, cells);
 
         m_totalModules = (int)(
             mapSize.x *
@@ -336,7 +315,7 @@ public class WFC_Redux : MapGenerator
                 m_hashedEntropyVectors.Add(nextModuleCoordinate);
                 // Attempts to Get the Module
                 Bitset nextModuleOptions = new Bitset(nextModularMapCell.Options);
-                Bitset options = GetAllEdgeOptionsFromID(comparingEdge, currentModule.Options);
+                Bitset options = GetAllEdgeOptionsFromEdge(comparingEdge, currentModule.Options);
 
                 FilterOptionsToCellOptions(options, ref GetModule(nextModuleCoordinate));
 

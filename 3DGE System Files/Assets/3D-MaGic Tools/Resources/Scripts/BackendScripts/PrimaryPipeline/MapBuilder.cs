@@ -3,23 +3,39 @@ using UnityEngine;
 
 public class MapBuilder
 {
-    private List<GameObject> m_instantiatedCellGameObjects;
-    public List<GameObject> GetMapObjects() { return m_instantiatedCellGameObjects; }
-
-
     public MapBuilder()
     {  
     }
 
-    public void Init() { }
-      
-    public void InstantiateMap(Vector3 mapSize, int[,,] rawMapData, List<Cell> cells, Transform parentTransform = null)
+    public List<GameObject> InstantiateMap(Vector3 dimensions, ModularMapCell[,,] mapArray, List<Cell> cells, Transform parentTransform = null)
     {
-        for (int z = 0; z < mapSize.z; z++)
+        int[,,] rawMapData = new int[
+                (int)dimensions.y,
+                (int)dimensions.x,
+                (int)dimensions.z];
+
+        for (int z = 0; z < dimensions.z; z++)
         {
-            for(int y = 0; y < mapSize.y; y++)
+            for (int y = 0; y < dimensions.y; y++)
             {
-                for(int x = 0; x < mapSize.x; x++)
+                for (int x = 0; x < dimensions.x; x++)
+                {
+                    rawMapData[x, y, z] = mapArray[x, y, z].Module;
+                }
+            }
+        }
+
+        return InstantiateMap(dimensions, rawMapData, cells, parentTransform);
+    }
+    public List<GameObject> InstantiateMap(Vector3 dimensions, int[,,] rawMapData, List<Cell> cells, Transform parentTransform = null)
+    {
+        List<GameObject> m_instantiatedCellGameObjects = new List<GameObject>();
+
+        for (int z = 0; z < dimensions.z; z++)
+        {
+            for(int y = 0; y < dimensions.y; y++)
+            {
+                for(int x = 0; x < dimensions.x; x++)
                 {
                     int cellID = rawMapData[x, y, z];
                     Cell currentCell = cells[cellID];
@@ -28,52 +44,23 @@ public class MapBuilder
                     Vector3 mapPosition = new Vector3(x, y, z);
                     Vector3 cellRotation = currentCell.GetRotationInDegrees();
 
-                    InstantiateCellGameObject(cellGameObject, mapPosition, cellRotation, parentTransform);
+                    GameObject newGameObject = InstantiateCellGameObject(cellGameObject, mapPosition, cellRotation, parentTransform);
+                    if (newGameObject != null) m_instantiatedCellGameObjects.Add(newGameObject);
                 }
             }
         }
+
+        return m_instantiatedCellGameObjects;
     }
 
-    private void InstantiateCellGameObject(GameObject cellGameObject, Vector3 mapPosition, Vector3 cellRotation, Transform parentTransform)
+    private GameObject InstantiateCellGameObject(GameObject cellGameObject, Vector3 mapPosition, Vector3 cellRotation, Transform parentTransform)
     {
-        if(m_instantiatedCellGameObjects == null) m_instantiatedCellGameObjects = new List<GameObject>();
-
         if (cellGameObject != null)
         {
             GameObject newMapGameObject = GameObject.Instantiate(cellGameObject, mapPosition, Quaternion.Euler(cellRotation), parentTransform);
-            if(m_instantiatedCellGameObjects != null) m_instantiatedCellGameObjects.Add(newMapGameObject);
-        }
-    }
-
-    // ********************************************************************************************
-    // ********************************************************************************************
-
-
-
-    // Functions: Clear/Delete ********************************************************************
-    // ********************************************************************************************
-    // Clears the GameObject list
-    public void ClearBuiltListOfGameObjects()
-    {
-        if (m_instantiatedCellGameObjects == null) return;
-        if (m_instantiatedCellGameObjects.Count < 1) return;
-        foreach (GameObject modular_map_cell_object in m_instantiatedCellGameObjects)
-        {
-            DestroyUnityObject(modular_map_cell_object);
+            return newMapGameObject;
         }
 
-        m_instantiatedCellGameObjects.Clear();
+        return null;
     }
-
-    // destroys objects during edit and play mode
-    public void DestroyUnityObject(Object obj)
-    {
-        if (Application.isPlaying)
-            GameObject.Destroy(obj);
-        else
-            GameObject.DestroyImmediate(obj);
-    }
-
-    // ********************************************************************************************
-    // ********************************************************************************************
 }
