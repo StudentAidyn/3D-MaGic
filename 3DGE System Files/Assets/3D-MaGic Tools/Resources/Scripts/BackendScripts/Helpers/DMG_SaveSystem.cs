@@ -13,70 +13,70 @@ public struct GenData
 
 public static class DMG_SaveSystem
 {
-    private static DMG_SaveData_Map dmg_saveData_map = new DMG_SaveData_Map();
-    private static DMG_SaveData_Cells dmg_saveData_cells = new DMG_SaveData_Cells();
+    private static DMG_SaveData_Map s_mapSaveData = new DMG_SaveData_Map();
+    private static DMG_SaveData_Cells s_cellsSaveData = new DMG_SaveData_Cells();
 
-    private static MapController mc_controller;
+    private static MapController s_mapController;
 
-    private static string str_fileName = "map";
+    private static string s_fileName = "map";
 
     [System.Serializable]
     public struct DMG_SaveData_Map
     {
-        public GenData _GenData;
-        public CellGroupData _CellGroupData;
+        public GenData GenerationData;
+        public CellGroupData CellGroupData;
     }
 
     [System.Serializable]
     public struct DMG_SaveData_Cells
     {
-        public CellGroupData _CellGroupData;
+        public CellGroupData CellGroupData;
     }
 
 
 
-    public static void Init(MapController _map)
+    public static void Init(MapController mapController)
     {
-        mc_controller = _map;
+        s_mapController = mapController;
     }
 
     // SAVE/LOAD MAP ******************************************************************************
     // ********************************************************************************************
     private static string SaveFilePath_Map()
     {
-        return Application.persistentDataPath + "/" + str_fileName + ".svm";
+        return Application.persistentDataPath + "/" + s_fileName + ".svm";
     }
 
-    public static void SaveMap(string _fileName = "map")
+    public static void SaveMap(string fileName = "map")
     {
-        str_fileName = _fileName;
+        s_fileName = fileName;
 
         HandleSaveGenData();
-        File.WriteAllText(SaveFilePath_Map(), JsonUtility.ToJson(dmg_saveData_map, true));
+        File.WriteAllText(SaveFilePath_Map(), JsonUtility.ToJson(s_mapSaveData, true));
         Debug.Log(SaveFilePath_Map());
     }
 
     public static void HandleSaveGenData()
     {
-        mc_controller.Save(ref dmg_saveData_map._GenData);
-        mc_controller.LocalCellGenerator.Save(ref dmg_saveData_map._CellGroupData);
+        s_mapController.Save(ref s_mapSaveData.GenerationData);
+        s_mapController.LocalCellGenerator.Save(ref s_mapSaveData.CellGroupData);
     }
 
     public static void LoadMap(string _fileName = "map")
     {
-        str_fileName = _fileName;
+        s_fileName = _fileName;
 
         string save_data = File.ReadAllText(SaveFilePath_Map());
 
-        dmg_saveData_map = JsonUtility.FromJson<DMG_SaveData_Map>(save_data);
+        s_mapSaveData = JsonUtility.FromJson<DMG_SaveData_Map>(save_data);
 
         HandleLoadGenData();
     }
 
     private static void HandleLoadGenData()
     {
-        mc_controller.Load(dmg_saveData_map._GenData);
-        mc_controller.LocalCellGenerator.Load(dmg_saveData_map._CellGroupData);
+        s_mapController.Load(s_mapSaveData.GenerationData);
+        s_mapController.LocalCellGenerator.Load(s_mapSaveData.CellGroupData);
 
     }
 
@@ -95,26 +95,26 @@ public static class DMG_SaveSystem
     public static void SaveCells()
     {
         HandleSaveCellData();
-        File.WriteAllText(SaveFilePath_Cells(), JsonUtility.ToJson(dmg_saveData_cells, true));
+        File.WriteAllText(SaveFilePath_Cells(), JsonUtility.ToJson(s_cellsSaveData, true));
     }
 
     public static void HandleSaveCellData()
     {
-        mc_controller.LocalCellGenerator.Save(ref dmg_saveData_cells._CellGroupData);
+        s_mapController.LocalCellGenerator.Save(ref s_cellsSaveData.CellGroupData);
     }
 
     public static void LoadCell()
     {
         string save_data = File.ReadAllText(SaveFilePath_Cells());
 
-        dmg_saveData_cells = JsonUtility.FromJson<DMG_SaveData_Cells>(save_data);
+        s_cellsSaveData = JsonUtility.FromJson<DMG_SaveData_Cells>(save_data);
 
         HandleLoadCellData();
     }
 
     private static void HandleLoadCellData()
     {
-        mc_controller.LocalCellGenerator.Load(dmg_saveData_cells._CellGroupData);
+        s_mapController.LocalCellGenerator.Load(s_cellsSaveData.CellGroupData);
     }
 
     public static bool HasCellDataFile()

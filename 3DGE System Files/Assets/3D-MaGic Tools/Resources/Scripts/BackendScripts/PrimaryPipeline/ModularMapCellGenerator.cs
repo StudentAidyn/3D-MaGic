@@ -36,7 +36,7 @@ public class CellGenerator
 
     public List<Cell> GetCells() => m_cells;
 
-    // Total GetCells ~ can also be found out through counting _cellsList list
+    // Total GetCells ~ can also be found out through counting m_cellsList list
     private int m_totalCells = 0;
     public int GetCellCount() => m_totalCells;
 
@@ -108,7 +108,8 @@ public class CellGenerator
     private void CreateConnections(in List<ModularMapCellComponent> mapCellComponents)
     {
         ResetCells();
-
+        sbyte totalRotations = 4;
+        sbyte totalVariants = totalRotations;
 
         // GenerateMap GetCells
         for (int modulesIndex = 0; modulesIndex < mapCellComponents.Count; modulesIndex++)
@@ -116,27 +117,26 @@ public class CellGenerator
             ModularMapCellComponent currentModularCell = mapCellComponents[modulesIndex];
             if (!currentModularCell.NoVariants())
             {
-                for (sbyte i = 0; i < 4; i++)
+                
+                for (sbyte i = 0; i < totalVariants; i++)
                 {
                     Cell cell = new();
                     cell.ID = m_totalCells;
                     cell.Layers = currentModularCell.GetLayerType();
                     cell.PrefabGameObject = currentModularCell.GetMesh();
-                    cell.Rotation = (sbyte)((currentModularCell.GetRotation() + i) % 4);
+                    cell.Rotation = (sbyte)((currentModularCell.GetRotation() + i) % totalRotations);
 
-                    cell.ConnectionUp = currentModularCell.GetConnectionWith_((ConnectorEdge)(i % 4));
-                    cell.ConnectionRight = currentModularCell.GetConnectionWith_((ConnectorEdge)((i + 1) % 4));
-                    cell.ConnectionDown = currentModularCell.GetConnectionWith_((ConnectorEdge)((i + 2) % 4));
-                    cell.ConnectionLeft = currentModularCell.GetConnectionWith_((ConnectorEdge)((i + 3) % 4));
+                    /* SIDES */
+                    cell.ConnectionFront = currentModularCell.GetConnectionWithEdge((ConnectorEdge)(i % totalRotations));
+                    cell.ConnectionRight = currentModularCell.GetConnectionWithEdge((ConnectorEdge)((i + 1) % totalRotations));
+                    cell.ConnectionBack = currentModularCell.GetConnectionWithEdge((ConnectorEdge)((i + 2) % totalRotations));
+                    cell.ConnectionLeft = currentModularCell.GetConnectionWithEdge((ConnectorEdge)((i + 3) % totalRotations));
 
-                    // DISPLAY CONNECTION TYPES
-                    //Debug.Log(cell.ConnectionUp._connector + " || " + cell.ConnectionRight._connector + " || " + cell.ConnectionDown._connector + " || " + cell.ConnectionLeft._connector);
+                    cell.ConnectionUp = currentModularCell.GetConnectionWithEdge(ConnectorEdge.Y);
+                    cell.ConnectionDown = currentModularCell.GetConnectionWithEdge(ConnectorEdge.nY);
 
-                    cell.ConnectionFront = currentModularCell.GetConnectionWith_(ConnectorEdge.Y);
-                    cell.ConnectionBack = currentModularCell.GetConnectionWith_(ConnectorEdge.nY);
-
-                    if (cell.ConnectionFront._property == ConnectorProperty.Rotational) cell.ConnectionFront._rotation = (sbyte)((cell.ConnectionFront._rotation + i) % 4);
-                    if (cell.ConnectionBack._property == ConnectorProperty.Rotational) cell.ConnectionBack._rotation = (sbyte)((cell.ConnectionBack._rotation + i) % 4);
+                    if (cell.ConnectionUp.Property == ConnectorProperty.Rotational) cell.ConnectionUp.Rotation = (sbyte)((cell.ConnectionUp.Rotation + i) % 4);
+                    if (cell.ConnectionDown.Property == ConnectorProperty.Rotational) cell.ConnectionDown.Rotation = (sbyte)((cell.ConnectionDown.Rotation + i) % 4);
 
                     m_cells.Add(cell);
 
@@ -151,13 +151,13 @@ public class CellGenerator
                 cell.PrefabGameObject = currentModularCell.GetMesh();
                 cell.Rotation = 0;
 
-                cell.ConnectionUp = currentModularCell.GetConnectionWith_(ConnectorEdge.Z);
-                cell.ConnectionRight = currentModularCell.GetConnectionWith_(ConnectorEdge.X);
-                cell.ConnectionDown = currentModularCell.GetConnectionWith_(ConnectorEdge.nZ);
-                cell.ConnectionLeft = currentModularCell.GetConnectionWith_(ConnectorEdge.nX);
+                cell.ConnectionFront = currentModularCell.GetConnectionWithEdge(ConnectorEdge.Z);
+                cell.ConnectionRight = currentModularCell.GetConnectionWithEdge(ConnectorEdge.X);
+                cell.ConnectionBack = currentModularCell.GetConnectionWithEdge(ConnectorEdge.nZ);
+                cell.ConnectionLeft = currentModularCell.GetConnectionWithEdge(ConnectorEdge.nX);
 
-                cell.ConnectionFront = currentModularCell.GetConnectionWith_(ConnectorEdge.Y);
-                cell.ConnectionBack = currentModularCell.GetConnectionWith_(ConnectorEdge.nY);
+                cell.ConnectionUp = currentModularCell.GetConnectionWithEdge(ConnectorEdge.Y);
+                cell.ConnectionDown = currentModularCell.GetConnectionWithEdge(ConnectorEdge.nY);
 
                 m_cells.Add(cell);
                 m_totalCells++;
@@ -182,12 +182,12 @@ public class CellGenerator
                     foundConnections[(int)ConnectorEdge.X].SetBitAtIndex(m_cells[otherCellIndex].ID);
                 }
 
-                if (CompareConnections(m_cells[currentCellIndex].ConnectionFront, m_cells[otherCellIndex].ConnectionBack))
+                if (CompareConnections(m_cells[currentCellIndex].ConnectionUp, m_cells[otherCellIndex].ConnectionDown))
                 {
                     foundConnections[(int)ConnectorEdge.Y].SetBitAtIndex(m_cells[otherCellIndex].ID);
                 }
 
-                if (CompareConnections(m_cells[currentCellIndex].ConnectionUp, m_cells[otherCellIndex].ConnectionDown))
+                if (CompareConnections(m_cells[currentCellIndex].ConnectionFront, m_cells[otherCellIndex].ConnectionBack))
                 {
                     foundConnections[(int)ConnectorEdge.Z].SetBitAtIndex(m_cells[otherCellIndex].ID);
                 }
@@ -197,12 +197,12 @@ public class CellGenerator
                     foundConnections[(int)ConnectorEdge.nX].SetBitAtIndex(m_cells[otherCellIndex].ID);
                 }
 
-                if (CompareConnections(m_cells[currentCellIndex].ConnectionBack, m_cells[otherCellIndex].ConnectionFront))
+                if (CompareConnections(m_cells[currentCellIndex].ConnectionDown, m_cells[otherCellIndex].ConnectionUp))
                 {
                     foundConnections[(int)ConnectorEdge.nY].SetBitAtIndex(m_cells[otherCellIndex].ID);
                 }
 
-                if (CompareConnections(m_cells[currentCellIndex].ConnectionDown, m_cells[otherCellIndex].ConnectionUp))
+                if (CompareConnections(m_cells[currentCellIndex].ConnectionBack, m_cells[otherCellIndex].ConnectionFront))
                 {
                     foundConnections[(int)ConnectorEdge.nZ].SetBitAtIndex(m_cells[otherCellIndex].ID);
                 }
@@ -221,37 +221,37 @@ public class CellGenerator
     bool CompareConnections(Connection currentConnection, Connection comparedConnection)
     {
         // Check if both connections share the same Connector
-        if (currentConnection._connector == comparedConnection._connector)
+        if (currentConnection.Connector == comparedConnection.Connector)
         {
             // Check edge properties
             // RULINGS:
             // 1) Check if both connections properties are EXACT
-            if (currentConnection._property == ConnectorProperty.Exact &&
-                comparedConnection._property == ConnectorProperty.Exact)
+            if (currentConnection.Property == ConnectorProperty.Exact &&
+                comparedConnection.Property == ConnectorProperty.Exact)
             {
                 return true;
             }
 
 
             // 2) Check if both connections properties are OPPOSITES (FLIPPED A & B)
-            if (currentConnection._property == ConnectorProperty.FlippedA &&
-                comparedConnection._property == ConnectorProperty.FlippedB)
+            if (currentConnection.Property == ConnectorProperty.FlippedA &&
+                comparedConnection.Property == ConnectorProperty.FlippedB)
             {
                 return true;
             }
 
-            if (currentConnection._property == ConnectorProperty.FlippedB &&
-                comparedConnection._property == ConnectorProperty.FlippedA)
+            if (currentConnection.Property == ConnectorProperty.FlippedB &&
+                comparedConnection.Property == ConnectorProperty.FlippedA)
             {
                 return true;
             }
 
 
             // 3) Check if both connections are rotational, then check if they share the same rotation.
-            if (currentConnection._property == ConnectorProperty.Rotational &&
-                comparedConnection._property == ConnectorProperty.Rotational)
+            if (currentConnection.Property == ConnectorProperty.Rotational &&
+                comparedConnection.Property == ConnectorProperty.Rotational)
             {
-                if(currentConnection._rotation == comparedConnection._rotation)
+                if(currentConnection.Rotation == comparedConnection.Rotation)
                 {
                     return true;
                 }

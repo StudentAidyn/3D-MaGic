@@ -1,43 +1,24 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+
 public class MapGenerator
 {
-    protected ModularMapCell[,,] _mapArray;
-    protected List<Cell> _cellsList;
+    #region VARIABLES
+    
+    protected ModularMapCell[,,] m_mapArray;
+    protected List<Cell> m_cellsList;
+    protected Vector3 m_dimensions;
 
+    #endregion
     public MapGenerator()
     {
     }
-    public ModularMapCell[,,] GetMap() { return _mapArray; }
 
-    protected virtual void Init(Vector3 dimensions, List<Cell> cellsList)
-    {
-        _mapArray =
-            new ModularMapCell[
-                (int)dimensions.x,
-                (int)dimensions.y,
-                (int)dimensions.z];
+    #region PUBLIC-METHODS
 
-        int bitsetSize = cellsList.Count;
+    public ModularMapCell[,,] GetMap() { return m_mapArray; }
 
-        for (int z = 0; z < dimensions.z; z++)
-        {
-            for (int y = 0; y < dimensions.y; y++)
-            {
-                for (int x = 0; x < dimensions.x; x++)
-                {
-                    _mapArray[x, y, z] = new ModularMapCell(bitsetSize);
-                }
-
-            }
-
-        }
-
-        _cellsList = cellsList;
-
-        Debug.Log("FROM WITHIN MAP GENERATOR: bs_size - " + bitsetSize + ", cell_list size - " + cellsList.Count);
-    }
     // GenerateMap Function
     public virtual void Generate(Vector3 dimensions, List<Cell> cellsList) { }
 
@@ -51,71 +32,94 @@ public class MapGenerator
             {
                 for (int x = 0; x < dimensions.x; x++)
                 {
-                    rawDataArrayReference[x, y, z] = _mapArray[x, y, z].Module;
+                    rawDataArrayReference[x, y, z] = m_mapArray[x, y, z].Module;
                 }
 
             }
         }
     }
 
+    #endregion
 
-
-    protected ref ModularMapCell GetModule(Vector3 map_pos)
+    #region PRIVATE-METHODS
+    protected virtual void Init(Vector3 dimensions, List<Cell> cellsList)
     {
-        return ref _mapArray[(int)map_pos.x, (int)map_pos.y, (int)map_pos.z];
+        m_dimensions = dimensions;
+        m_mapArray =
+            new ModularMapCell[
+                (int)dimensions.x,
+                (int)dimensions.y,
+                (int)dimensions.z];
+
+        int bitsetSize = cellsList.Count;
+
+        for (int z = 0; z < dimensions.z; z++)
+        {
+            for (int y = 0; y < dimensions.y; y++)
+            {
+                for (int x = 0; x < dimensions.x; x++)
+                {
+                    m_mapArray[x, y, z] = new ModularMapCell(bitsetSize);
+                }
+            }
+        }
+
+        m_cellsList = cellsList;
     }
 
-
-
+    protected ref ModularMapCell GetModule(Vector3 mapPosition)
+    {
+        return ref m_mapArray[(int)mapPosition.x, (int)mapPosition.y, (int)mapPosition.z];
+    }
 
 
     #region Cell Logic
 
-    public Cell GetCell(int index)
+    protected Cell GetCellFromID(int indexID)
     {
-        if (index >= _cellsList.Count || index < 0)
+        if (indexID < 0 || m_cellsList.Count < indexID)
         {
             return null;
         }
 
-        return _cellsList[index];
+        return m_cellsList[indexID];
     }
 
     // Get Collapsed Object Options
-    public Bitset GetEdge_OptionsFrom_(ConnectorEdge _connectorEdge, int index)
+    protected Bitset GetEdgeOptionsFromID(ConnectorEdge connectorEdge, int indexID)
     {
-        Cell mod_cell = GetCell(index);
-        if (mod_cell != null)
+        Cell modCell = GetCellFromID(indexID);
+        if (modCell != null)
         {
-            return mod_cell.Connections[(int)_connectorEdge];
+            return modCell.Connections[(int)connectorEdge];
         }
         return new Bitset(0);
     }
 
     // Non-Collapsed Object Options
-    public Bitset GetEdge_AllOptionsFrom_(ConnectorEdge _connectorEdge, Bitset _currentOptions)
+    protected Bitset GetAllEdgeOptionsFromID(ConnectorEdge connectorEdge, Bitset currentOptions)
     {
         // create new BitsetArray to store new found options => ensure it is ResetBitAtIndex upon creation
-        Bitset found_options = new Bitset(_currentOptions.Size());
-        found_options.ResetAllBits();
+        Bitset foundOptions = new Bitset(currentOptions.Size());
+        foundOptions.ResetAllBits();
 
         // find and fill options
-        for (int i = 0; i < _currentOptions.Size(); i++)
+        for (int i = 0; i < currentOptions.Size(); i++)
         {
-            if (_currentOptions[i])
+            if (currentOptions[i])
             {
-                found_options.Copy(found_options | GetCell(i).Connections[(int)_connectorEdge]);
+                foundOptions.Copy(foundOptions | GetCellFromID(i).Connections[(int)connectorEdge]);
             }
         }
 
-        return found_options;
+        return foundOptions;
     }
 
     #endregion
 
     #region Helpers
 
-    protected static int Get_Entropy(ref ModularMapCell modularMapCell)
+    protected static int GetCellEntropy(ref ModularMapCell modularMapCell)
     {
         int entropy = 0;
 
@@ -130,21 +134,21 @@ public class MapGenerator
         return entropy;
     }
 
-    protected static void Filter_OptionsTo_Options(Bitset btst_options, ref ModularMapCell modularMapCell)
+    protected static void FilterOptionsToCellOptions(Bitset options, ref ModularMapCell modularMapCell)
     {
-        modularMapCell.Options.Copy(modularMapCell.Options & btst_options);
+        modularMapCell.Options.Copy(modularMapCell.Options & options);
     }
 
     // AreMapDimensionsPositive if the current Module has been collapsed
-    protected static bool Is_Collapsed(ref ModularMapCell modularMapCell)
+    protected static bool IsCellCollapsed(ref ModularMapCell modularMapCell)
     {
         return modularMapCell.Module != -1;
     }
 
     // Collapses the current Module into one of the options taking in consideration the weights of the objects
-    protected static void Collapse_(ref ModularMapCell modularMapCell)
+    protected static void CollapseCell(ref ModularMapCell modularMapCell)
     {
-        if (Is_Collapsed(ref modularMapCell))
+        if (IsCellCollapsed(ref modularMapCell))
         {
             Debug.LogError("Is Collapsed");
             return;
@@ -152,29 +156,44 @@ public class MapGenerator
 
         if (modularMapCell.Options.IsAllReset())
         {
-            int fvalue = modularMapCell.Options.GetBitset()[0];
             modularMapCell.Module = 0;
             return;
         }
 
-        List<int> found_modules = new List<int>();
+        List<int> foundModules = new List<int>();
 
         for (int index = 0; index < modularMapCell.Options.Size(); index++)
         {
             if (modularMapCell.Options[index])
             {
-                found_modules.Add(index);
+                foundModules.Add(index);
             }
         }
 
-        if (found_modules.Count == 0) { return; }
+        if (foundModules.Count == 0) { return; }
 
-        long random_index = (long)RandomNumber.NextMax((ulong)found_modules.Count);
+        long randomIndex = (long)RandomNumber.NextMax((ulong)foundModules.Count);
 
-        modularMapCell.Module = found_modules[(int)random_index];
+        modularMapCell.Module = foundModules[(int)randomIndex];
 
     }
 
+    protected bool IsInVectorBounds(Vector3 vectorToTest, Vector3 vectorMax)
+    {
+        return (
+            (vectorToTest.x >= 0 && vectorToTest.x < vectorMax.x) &&
+            (vectorToTest.y >= 0 && vectorToTest.y < vectorMax.y) &&
+            (vectorToTest.z >= 0 && vectorToTest.z < vectorMax.z)
+            );
+    }
+
+    protected bool IsInMapBounds(Vector3 vectorToTest)
+    {
+        return IsInVectorBounds(vectorToTest, m_dimensions);
+    }
+
+
     #endregion
 
+    #endregion
 }

@@ -13,5 +13,5 @@ public enum Connector
     HalfSide,
     HalfHalf,
     Angled
-    //Add more if you would like
+    // More can be added...
 }

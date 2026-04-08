@@ -10,11 +10,11 @@ public class Cell
     public sbyte Rotation = 0;
     public LayerTypes Layers = LayerTypes.None;
     public Connection ConnectionRight;
-    public Connection ConnectionFront;
     public Connection ConnectionUp;
+    public Connection ConnectionFront;
     public Connection ConnectionLeft;
-    public Connection ConnectionBack;
     public Connection ConnectionDown;
+    public Connection ConnectionBack;
     public List<Bitset> Connections = new List<Bitset>();
 
     public Vector3 GetRotationInDegrees()
@@ -46,19 +46,19 @@ public class Cell
         data.Layers = Layers;
 
         //public Connection ConnectionRight;
-        //public Connection ConnectionFront;
         //public Connection ConnectionUp;
+        //public Connection ConnectionFront;
         //public Connection ConnectionLeft;
-        //public Connection ConnectionBack;
         //public Connection ConnectionDown;
+        //public Connection ConnectionBack;
 
         // Bitset Data
         List<BitsetData> lst_bitsetData = new List<BitsetData>();
         for (int i = 0; i < Connections.Count; i++)
         {
-            BitsetData new_data = new BitsetData();
-            Connections[i].Save(ref new_data);
-            lst_bitsetData.Add(new_data);
+            BitsetData newData = new BitsetData();
+            Connections[i].Save(ref newData);
+            lst_bitsetData.Add(newData);
         }
 
         data.EdgeConnections = lst_bitsetData.ToArray();

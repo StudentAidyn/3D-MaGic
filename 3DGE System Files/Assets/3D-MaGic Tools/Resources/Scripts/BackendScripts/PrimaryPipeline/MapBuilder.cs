@@ -21,14 +21,14 @@ public class MapBuilder
             {
                 for(int x = 0; x < mapSize.x; x++)
                 {
-                    int _cellID = rawMapData[x, y, z];
-                    Cell _currentCell = cells[_cellID];
+                    int cellID = rawMapData[x, y, z];
+                    Cell currentCell = cells[cellID];
 
-                    GameObject _cellGameObject = _currentCell.PrefabGameObject;
-                    Vector3 _mapPosition = new Vector3(x, y, z);
-                    Vector3 _cellRotation = _currentCell.GetRotationInDegrees();
+                    GameObject cellGameObject = currentCell.PrefabGameObject;
+                    Vector3 mapPosition = new Vector3(x, y, z);
+                    Vector3 cellRotation = currentCell.GetRotationInDegrees();
 
-                    InstantiateCellGameObject(_cellGameObject, _mapPosition, _cellRotation, parentTransform);
+                    InstantiateCellGameObject(cellGameObject, mapPosition, cellRotation, parentTransform);
                 }
             }
         }
@@ -40,8 +40,8 @@ public class MapBuilder
 
         if (cellGameObject != null)
         {
-            GameObject _newMapGameObject = GameObject.Instantiate(cellGameObject, mapPosition, Quaternion.Euler(cellRotation), parentTransform);
-            if(m_instantiatedCellGameObjects != null) m_instantiatedCellGameObjects.Add(_newMapGameObject);
+            GameObject newMapGameObject = GameObject.Instantiate(cellGameObject, mapPosition, Quaternion.Euler(cellRotation), parentTransform);
+            if(m_instantiatedCellGameObjects != null) m_instantiatedCellGameObjects.Add(newMapGameObject);
         }
     }
 
@@ -66,7 +66,7 @@ public class MapBuilder
     }
 
     // destroys objects during edit and play mode
-    public void DestroyUnityObject(UnityEngine.Object obj)
+    public void DestroyUnityObject(Object obj)
     {
         if (Application.isPlaying)
             GameObject.Destroy(obj);

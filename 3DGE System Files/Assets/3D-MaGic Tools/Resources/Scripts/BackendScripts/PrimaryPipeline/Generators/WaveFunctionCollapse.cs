@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 
 public class WaveFunctionCollapse : MapGenerator
 {
-    private int _totalModules;
+    private int m_totalModules;
     private int _totalCurrentlyCollapsedModules;
 
     public WaveFunctionCollapse() : base()
@@ -30,14 +30,14 @@ public class WaveFunctionCollapse : MapGenerator
         
     }
 
-    protected override void Init(Vector3 _vec3_mapSize, List<Cell> _cells)
+    protected override void Init(Vector3 mapSize, List<Cell> cells)
     {
-        base.Init(_vec3_mapSize, _cells);
+        base.Init(mapSize, cells);
 
-        _totalModules = (int)(
-            _vec3_mapSize.x *
-            _vec3_mapSize.y *
-            _vec3_mapSize.z); 
+        m_totalModules = (int)(
+            mapSize.x *
+            mapSize.y *
+            mapSize.z); 
     }
 
     public override void Generate(Vector3 localMapDimensions, List<Cell> cellList)
@@ -46,13 +46,13 @@ public class WaveFunctionCollapse : MapGenerator
 
         // Collapse the corner first
         CollapseModule(Vector3.zero);
-        Propagate(Vector3.zero, localMapDimensions);
+        Propagate(Vector3.zero);
 
 
         // Loops until the all Modules are collapsed - this is where the loop needs to be freed to properly generate it correctly
-        while (_totalCurrentlyCollapsedModules < _totalModules)
+        while (_totalCurrentlyCollapsedModules < m_totalModules)
         {
-            if (!Iterate(localMapDimensions))
+            if (!Iterate())
             {
                 return;
             }
@@ -68,13 +68,13 @@ public class WaveFunctionCollapse : MapGenerator
 
         // Collapse the corner first
         CollapseModule(Vector3.zero);
-        Propagate(Vector3.zero, localMapDimensions);
+        Propagate(Vector3.zero);
 
 
         // Loops until the all Modules are collapsed - this is where the loop needs to be freed to properly generate it correctly
-        while (_totalCurrentlyCollapsedModules < _totalModules)
+        while (_totalCurrentlyCollapsedModules < m_totalModules)
         {
-            if (!Iterate(localMapDimensions))
+            if (!Iterate())
             {
                 return;
             }
@@ -83,20 +83,20 @@ public class WaveFunctionCollapse : MapGenerator
     }
 
     // iterates through the WFC 
-    private bool Iterate(Vector3 _localSize)
+    private bool Iterate()
     {
-        var coords = GetMinEntropyCoords(_localSize);
+        var coords = GetMinEntropyCoords();
         if (coords == null || coords.x == -1) return false;
 
         CollapseModule(coords);
 
-        Propagate(coords, _localSize);
+        Propagate(coords);
         return true;
     }
 
     // finds and returns the location of *minimum entropy
     // *if more than 1 it will randomize between modules
-    Vector3 GetMinEntropyCoords(Vector3 _localSize)
+    Vector3 GetMinEntropyCoords()
     {
         double _lowestEntropy = int.MaxValue; // sets lowest entropy to int Max to ensure the correct lowest entropy selection
 
@@ -105,20 +105,19 @@ public class WaveFunctionCollapse : MapGenerator
 
         // Checking for lowest Entropy Map Module within a select Area
 
-
         // IDEA(Aidyn): To optimise this, maybe make a function to look for the area around the last collapsed object
         // IDEA(Aidyn): To optimise this more, create a list of affected options... then use that to search reducing the search results.
 
-        for (int y = 0; y < (int)_localSize.y; y++)
+        for (int y = 0; y < (int)m_dimensions.y; y++)
         {
-            for (int z = 0; z < (int)_localSize.z; z++)
+            for (int z = 0; z < (int)m_dimensions.z; z++)
             {
-                for (int x = 0; x < (int)_localSize.x; x++)
+                for (int x = 0; x < (int)m_dimensions.x; x++)
                 {
-                    ModularMapCell module = _mapArray[x, y, z];
-                    if (!Is_Collapsed(ref module))
+                    ModularMapCell module = m_mapArray[x, y, z];
+                    if (!IsCellCollapsed(ref module))
                     { // filters in only modules that aren't yet collapsed
-                        int current_found_entropy = Get_Entropy(ref module);
+                        int current_found_entropy = GetCellEntropy(ref module);
                         if (current_found_entropy < _lowestEntropy)
                         { // finding the newest lowest entropy
                             lowestEntropyModules.Clear();
@@ -148,12 +147,12 @@ public class WaveFunctionCollapse : MapGenerator
     private void CollapseModule(Vector3 coords)
     {
         // Collapse the current Min Entropy
-        Collapse_(ref _mapArray[(int)coords.x, (int)coords.y, (int)coords.z]);
+        CollapseCell(ref m_mapArray[(int)coords.x, (int)coords.y, (int)coords.z]);
         _totalCurrentlyCollapsedModules++;
     }
 
     // Waves through all modules and adjusts all modules based on the current change
-    public void Propagate(Vector3 _coords, Vector3 _localSize)
+    public void Propagate(Vector3 _coords)
     {
         // New Propagation Model
 
@@ -166,16 +165,16 @@ public class WaveFunctionCollapse : MapGenerator
         // Check Edges of the recently Collapsed Module
 
         // X
-        if (CheckCollapsedModuleEdge(currentMod, _coords.x + 1, _coords + new Vector3(1, 0, 0), ConnectorEdge.X, _localSize.x)) OpenList.Add(_coords + new Vector3(1, 0, 0));
-        if (CheckCollapsedModuleEdge(currentMod, _coords.x - 1, _coords - new Vector3(1, 0, 0), ConnectorEdge.nX, _localSize.x)) OpenList.Add(_coords - new Vector3(1, 0, 0));
+        if (CheckCollapsedModuleEdge(currentMod, _coords + new Vector3(1, 0, 0), ConnectorEdge.X)) OpenList.Add(_coords + new Vector3(1, 0, 0));
+        if (CheckCollapsedModuleEdge(currentMod, _coords - new Vector3(1, 0, 0), ConnectorEdge.nX)) OpenList.Add(_coords - new Vector3(1, 0, 0));
 
         // Y
-        if (CheckCollapsedModuleEdge(currentMod, _coords.y + 1, _coords + new Vector3(0, 1, 0), ConnectorEdge.Y, _localSize.y)) OpenList.Add(_coords + new Vector3(0, 1, 0));
-        if (CheckCollapsedModuleEdge(currentMod, _coords.y - 1, _coords - new Vector3(0, 1, 0), ConnectorEdge.nY, _localSize.y)) OpenList.Add(_coords - new Vector3(0, 1, 0));
+        if (CheckCollapsedModuleEdge(currentMod, _coords + new Vector3(0, 1, 0), ConnectorEdge.Y)) OpenList.Add(_coords + new Vector3(0, 1, 0));
+        if (CheckCollapsedModuleEdge(currentMod, _coords - new Vector3(0, 1, 0), ConnectorEdge.nY)) OpenList.Add(_coords - new Vector3(0, 1, 0));
 
         //Z
-        if (CheckCollapsedModuleEdge(currentMod, _coords.z + 1, _coords + new Vector3(0, 0, 1), ConnectorEdge.Z, _localSize.z)) OpenList.Add(_coords + new Vector3(0, 0, 1));
-        if (CheckCollapsedModuleEdge(currentMod, _coords.z - 1, _coords - new Vector3(0, 0, 1), ConnectorEdge.nZ, _localSize.z)) OpenList.Add(_coords - new Vector3(0, 0, 1));
+        if (CheckCollapsedModuleEdge(currentMod, _coords + new Vector3(0, 0, 1), ConnectorEdge.Z)) OpenList.Add(_coords + new Vector3(0, 0, 1));
+        if (CheckCollapsedModuleEdge(currentMod, _coords - new Vector3(0, 0, 1), ConnectorEdge.nZ)) OpenList.Add(_coords - new Vector3(0, 0, 1));
 
 
 
@@ -192,33 +191,33 @@ public class WaveFunctionCollapse : MapGenerator
             currentMod = GetModule(currentVec);
 
             // X
-            if (CheckModuleEdge(currentMod, currentVec.x + 1, currentVec + new Vector3(1, 0, 0), ConnectorEdge.X, _localSize.x)) OpenList.Add(currentVec + new Vector3(1, 0, 0));
-            if (CheckModuleEdge(currentMod, currentVec.x - 1, currentVec - new Vector3(1, 0, 0), ConnectorEdge.nX, _localSize.x)) OpenList.Add(currentVec - new Vector3(1, 0, 0));
+            if (CheckModuleEdge(currentMod, currentVec + new Vector3(1, 0, 0), ConnectorEdge.X)) OpenList.Add(currentVec + new Vector3(1, 0, 0));
+            if (CheckModuleEdge(currentMod, currentVec - new Vector3(1, 0, 0), ConnectorEdge.nX)) OpenList.Add(currentVec - new Vector3(1, 0, 0));
 
             // Y
-            if (CheckModuleEdge(currentMod, currentVec.y + 1, currentVec + new Vector3(0, 1, 0), ConnectorEdge.Y, _localSize.y)) OpenList.Add(currentVec + new Vector3(0, 1, 0));
-            if (CheckModuleEdge(currentMod, currentVec.y - 1, currentVec - new Vector3(0, 1, 0), ConnectorEdge.nY, _localSize.y)) OpenList.Add(currentVec - new Vector3(0, 1, 0));
+            if (CheckModuleEdge(currentMod, currentVec + new Vector3(0, 1, 0), ConnectorEdge.Y)) OpenList.Add(currentVec + new Vector3(0, 1, 0));
+            if (CheckModuleEdge(currentMod, currentVec - new Vector3(0, 1, 0), ConnectorEdge.nY)) OpenList.Add(currentVec - new Vector3(0, 1, 0));
 
             //Z
-            if (CheckModuleEdge(currentMod, currentVec.z + 1, currentVec + new Vector3(0, 0, 1), ConnectorEdge.Z, _localSize.z)) OpenList.Add(currentVec + new Vector3(0, 0, 1));
-            if (CheckModuleEdge(currentMod, currentVec.z - 1, currentVec - new Vector3(0, 0, 1), ConnectorEdge.nZ, _localSize.z)) OpenList.Add(currentVec - new Vector3(0, 0, 1));
+            if (CheckModuleEdge(currentMod, currentVec + new Vector3(0, 0, 1), ConnectorEdge.Z)) OpenList.Add(currentVec + new Vector3(0, 0, 1));
+            if (CheckModuleEdge(currentMod, currentVec - new Vector3(0, 0, 1), ConnectorEdge.nZ)) OpenList.Add(currentVec - new Vector3(0, 0, 1));
         }
 
     }
 
 
-    private bool CheckModuleEdge(ModularMapCell current_module, float _comparedAxis, Vector3 next_module_coordinate, ConnectorEdge _comparingEdge, float _max)
+    private bool CheckModuleEdge(ModularMapCell current_module, Vector3 next_module_coordinate, ConnectorEdge _comparingEdge)
     {
         bool removed = false;
-        if ((_comparedAxis >= 0) && (_comparedAxis < _max))
+        if (IsInMapBounds(next_module_coordinate))
         {
             ModularMapCell next_modular_map_cell = GetModule(next_module_coordinate);
-            if (!Is_Collapsed(ref next_modular_map_cell))
+            if (!IsCellCollapsed(ref next_modular_map_cell))
             {
                 // Attempts to Get the Module
                 Bitset next_module_options = new Bitset(next_modular_map_cell.Options);
-                Bitset options = GetEdge_AllOptionsFrom_(_comparingEdge, current_module.Options);
-                Filter_OptionsTo_Options(options, ref GetModule(next_module_coordinate));
+                Bitset options = GetAllEdgeOptionsFromID(_comparingEdge, current_module.Options);
+                FilterOptionsToCellOptions(options, ref GetModule(next_module_coordinate));
 
 
 
@@ -233,18 +232,18 @@ public class WaveFunctionCollapse : MapGenerator
         return removed;
     }
 
-    private bool CheckCollapsedModuleEdge(ModularMapCell current_module, float _comparedAxis, Vector3 next_module_coordinate, ConnectorEdge _comparingEdge, float _max)
+    private bool CheckCollapsedModuleEdge(ModularMapCell current_module, Vector3 next_module_coordinate, ConnectorEdge _comparingEdge)
     {
         bool removed = false;
-        if ((_comparedAxis >= 0) && (_comparedAxis < _max))
+        if (IsInMapBounds(next_module_coordinate))
         {
             ModularMapCell next_modular_map_cell = GetModule(next_module_coordinate);
-            if (!Is_Collapsed(ref next_modular_map_cell))
+            if (!IsCellCollapsed(ref next_modular_map_cell))
             {
                 // Attempts to Get the Module
                 Bitset next_module_options = new Bitset(next_modular_map_cell.Options);
-                Bitset options = GetEdge_OptionsFrom_(_comparingEdge, current_module.Module);
-                Filter_OptionsTo_Options(options, ref GetModule(next_module_coordinate));
+                Bitset options = GetEdgeOptionsFromID(_comparingEdge, current_module.Module);
+                FilterOptionsToCellOptions(options, ref GetModule(next_module_coordinate));
                 if (!Bitset.DoesBitsetMatchOther(next_module_options, next_modular_map_cell.Options))
                 {
                     removed = true;

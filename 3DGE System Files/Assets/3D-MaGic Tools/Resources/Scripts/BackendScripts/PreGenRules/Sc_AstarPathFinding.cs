@@ -33,7 +33,7 @@ public class Sc_AstarPathFinding
 
     //    // Generates traversal points based on total number of points
     //    for (int i = 0; i < _traversalPoints; i++) {
-    //        // Generates random  _dt_start and _dt_end points
+    //        // Generates random  s_start and s_end points
     //        Vector3 randomPosition = new Vector3((int)Random.Range(0, mapDimensions.x), 0, (int)Random.Range(0, mapDimensions.z));
     //        Points.Add(GetVectorModule(randomPosition));
     //    }

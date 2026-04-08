@@ -214,7 +214,7 @@ public class MapController
     {
         if(LocalMapBuilder != null)
         {
-            List<GameObject> local_map_objects = LocalMapBuilder.MapObjects();
+            List<GameObject> local_map_objects = LocalMapBuilder.GetMapObjects();
             if (local_map_objects.Count > 0)
             {
                 LocalMapMeshCombiner.CombineMeshes(ref local_map_objects);

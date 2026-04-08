@@ -8,6 +8,8 @@ public class MapMeshCombiner
 
     }
 
+    #region PUBLIC-METHODS
+
     public void Init() { }
 
     // Combines Meshes of a SINGLE Game Object parent with their children
@@ -32,6 +34,10 @@ public class MapMeshCombiner
 
         GenerateGameObjectsFromDictionary(meshFilters);
     }
+
+    #endregion
+
+    #region PRIVATE-METHODS
 
     private void CollectMeshFiltersPerGameObject(ref Dictionary<Material, List<MeshFilter>> meshFilters, GameObject gameObject)
     {
@@ -70,10 +76,10 @@ public class MapMeshCombiner
         foreach(Material mat in meshFilters.Keys)
         {
             List<MeshFilter> listMeshFilter = meshFilters[mat];
-            string _materialName = mat.name;
-            GameObject _meshFilterObject = GenerateGameObjectFromMeshFilters(listMeshFilter, _materialName);
-            MeshRenderer _meshRenderer = _meshFilterObject.AddComponent<MeshRenderer>();
-            _meshRenderer.sharedMaterial = mat;
+            string materialName = mat.name;
+            GameObject meshFilterObject = GenerateGameObjectFromMeshFilters(listMeshFilter, materialName);
+            MeshRenderer meshRenderer = meshFilterObject.AddComponent<MeshRenderer>();
+            meshRenderer.sharedMaterial = mat;
         }
     }
 
@@ -106,10 +112,7 @@ public class MapMeshCombiner
                 mesh = meshFilter.sharedMesh,
                 transform = meshFilter.transform.localToWorldMatrix,
             };
-
-            //meshFilter.gameObject.SetActive(false);
         }
-
 
         Mesh combinedMesh = new Mesh();
         combinedMesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
@@ -118,4 +121,5 @@ public class MapMeshCombiner
         return combinedMesh;
     }
 
+    #endregion
 }

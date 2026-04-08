@@ -13,20 +13,20 @@ form of prior knowledge of a grid, like using noise, or something along those li
  
  */
 
-using UnityEngine;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Unity.VisualScripting;
+using UnityEngine;
 
 [ExecuteInEditMode]
 public class InLineCollapse : MapGenerator
 {
+    #region PUBLIC-METHODS
     /// this WFC cycles through the whole array every time,
     /// using overlapping chunks will help with performance and accuracy.
-    
+
     // GenerateMap Sets up all the default variables
     public InLineCollapse() : base()
-    { 
+    {
         // Setup (if required)
     }
 
@@ -34,41 +34,43 @@ public class InLineCollapse : MapGenerator
     {
         Init(localMapDimensions, cellList);
 
-        int z = 0;
-        int x = 0;
+        int depthPosition = 0;
+        int horizontalPosition = 0;
+        int verticalPosition = 0;
 
-        int zFlow = 1;
-        int xFlow = 1;
+        int depthDirection = 1;
+        int horizontalDirection = 1;
 
-        int counter = 0;
+        int executionCounter = 0;
 
 
-        // GenerateMap for initial bottom floor y=0 - zig zag generation
-        for (int y = 0; y < localMapDimensions.y; y++)
+        // GenerateMap for initial bottom floor verticalPosition=0 - zig zag generation
+        for (verticalPosition = 0; verticalPosition < localMapDimensions.y; verticalPosition++)
         {
-
-            while (z >= 0 && z < localMapDimensions.z)
+            // Using while loops allows the directions to be swapped easily
+            while (depthPosition >= 0 && depthPosition < localMapDimensions.z)
             {
-                while (x >= 0 && x < localMapDimensions.x)
+                while (horizontalPosition >= 0 && horizontalPosition < localMapDimensions.x)
                 {
-                    ModularMapCell modular_map_cell = _mapArray[x, y, z];
+                    ModularMapCell modularMapCell = m_mapArray[horizontalPosition, verticalPosition, depthPosition];
 
-                    if (modular_map_cell != null)
+                    if (modularMapCell != null)
                     {
-                        Collapse_(ref modular_map_cell);
+                        CollapseCell(ref modularMapCell);
 
-                        Update_EdgesWithin_(new Vector3(x, y, z), localMapDimensions, xFlow, zFlow);
+                        Vector3 newModuleCoord = new Vector3(horizontalPosition, verticalPosition, depthPosition);
+                        UpdateEdgesWithinCoordinate(newModuleCoord, horizontalDirection, depthDirection);
 
-                        counter++;
+                        executionCounter++;
                     }
-                    x += xFlow;
+                    horizontalPosition += horizontalDirection;
                 }
-                xFlow *= -1;
-                x += xFlow;
-                z += zFlow;
+                horizontalDirection *= -1; // swap horizontal direction
+                horizontalPosition += horizontalDirection;
+                depthPosition += depthDirection;
             }
-            zFlow *= -1;
-            z += zFlow;
+            depthDirection *= -1; // swap depth direction
+            depthPosition += depthDirection;
         }
     }
 
@@ -85,7 +87,7 @@ public class InLineCollapse : MapGenerator
         int counter = 0;
 
 
-        // GenerateMap for initial bottom floor y=0 - zig zag generation
+        // GenerateMap for initial bottom floor verticalPosition=0 - zig zag generation
         for (int y = 0; y < localMapDimensions.y; y++)
         {
 
@@ -93,11 +95,11 @@ public class InLineCollapse : MapGenerator
             {
                 while (x >= 0 && x < localMapDimensions.x)
                 {
-                    ModularMapCell modular_map_cell = _mapArray[x, y, z];
+                    ModularMapCell modular_map_cell = m_mapArray[x, y, z];
 
                     if (modular_map_cell != null)
                     {
-                        Collapse_(ref modular_map_cell);
+                        CollapseCell(ref modular_map_cell);
 
                         Update_EdgesWithin_(new Vector3(x, y, z), localMapDimensions, xFlow, zFlow);
 
@@ -114,68 +116,77 @@ public class InLineCollapse : MapGenerator
         }
     }
 
+    #endregion
+
+    #region PRIVATE-METHODS
+
     //NOTE(Aidyn): Explain how the current module edge is calculated in this section specifically
-    private ConnectorEdge GetConnectorEdge(ConnectorEdge _edge, int _flow)
+    private ConnectorEdge GetConnectorEdge(ConnectorEdge edge, int flow)
     {
-        return (ConnectorEdge)((int)_edge + ((3 + _flow) % 4));
+        int connectorNormalizeValue = 3;
+        int cappingValue = 4;
+
+        int normalizedFlow = connectorNormalizeValue + flow;
+        int modulusFlow = normalizedFlow % cappingValue;
+
+        int edgeAsInt = (int)edge;
+
+        int newEdgeValueAsInt = edgeAsInt + modulusFlow;
+
+        return (ConnectorEdge)newEdgeValueAsInt;
     }
-        
-    private void Update_EdgesWithin_(Vector3 current_module_coordinate, Vector3 localMapDimensions, int x_flow, int z_flow)
+
+    private void UpdateEdgesWithinCoordinate(Vector3 currentModuleCoordinate, int horizontalFlow, int verticalFlow)
     {
-        ModularMapCell current_module = GetModule(current_module_coordinate);
+        ModularMapCell currentModule = GetModule(currentModuleCoordinate);
 
-        CheckModuleEdges(current_module, current_module_coordinate + new Vector3(x_flow, 0, 0), GetConnectorEdge(ConnectorEdge.X, x_flow), localMapDimensions, x_flow, z_flow);
+        CheckModuleEdges(currentModule, currentModuleCoordinate + new Vector3(horizontalFlow, 0, 0), GetConnectorEdge(ConnectorEdge.X, horizontalFlow), horizontalFlow, verticalFlow);
 
-        CheckModuleEdges(current_module, current_module_coordinate + new Vector3(0, 1, 0), ConnectorEdge.Y, localMapDimensions, x_flow, z_flow);
+        CheckModuleEdges(currentModule, currentModuleCoordinate + new Vector3(0, 1, 0), ConnectorEdge.Y, horizontalFlow, verticalFlow);
 
-        CheckModuleEdges(current_module, current_module_coordinate + new Vector3(0, 0, z_flow), GetConnectorEdge(ConnectorEdge.Z, z_flow), localMapDimensions, x_flow, z_flow);
+        CheckModuleEdges(currentModule, currentModuleCoordinate + new Vector3(0, 0, verticalFlow), GetConnectorEdge(ConnectorEdge.Z, verticalFlow), horizontalFlow, verticalFlow);
     }
 
-    private void CheckModuleEdges(ModularMapCell current_module, Vector3 next_module_coordinate, ConnectorEdge current_module_edge, Vector3 local_map_size, int x_flow, int z_flow)
+    private void CheckModuleEdges(ModularMapCell currentModule, Vector3 nextModuleCoordinate, ConnectorEdge currentModuleEdge, int horizontalDirection, int depthDirection)
     {
         // AreMapDimensionsPositive If currently compared module is within bounds of Map
-        if ((next_module_coordinate.x >= 0 && next_module_coordinate.x < local_map_size.x) &&
-            (next_module_coordinate.y >= 0 && next_module_coordinate.y < local_map_size.y) &&
-            (next_module_coordinate.z >= 0 && next_module_coordinate.z < local_map_size.z))
+        if (IsInMapBounds(nextModuleCoordinate))
         {
             // Attempts to Get the Module
-            ModularMapCell next_module = GetModule(next_module_coordinate);
-            int current_module_index = current_module.Module;
-            Bitset options = GetEdge_OptionsFrom_(current_module_edge, current_module_index);
-            Filter_OptionsTo_Options(options, ref next_module);
 
-            if (current_module_edge == GetConnectorEdge(ConnectorEdge.X, x_flow))
+            /* NOTE(Aidyn): Refactor this to into 2 steps, make the options collecting occur outside of this method*/
+            // A) Gets current module info, could be collected once instead
+            int currentModuleIndex = currentModule.Module;
+            Bitset options = GetEdgeOptionsFromID(currentModuleEdge, currentModuleIndex);
+
+            // B) Gets next module and filters options into it (that's it)
+            ModularMapCell nextModule = GetModule(nextModuleCoordinate);
+            FilterOptionsToCellOptions(options, ref nextModule);
+
+            if (currentModuleEdge == GetConnectorEdge(ConnectorEdge.X, horizontalDirection))
             {
-                CheckModulePossibleEdges(next_module, next_module_coordinate + new Vector3(0, 0, z_flow), GetConnectorEdge(ConnectorEdge.Z, z_flow), local_map_size);
+                CheckModulePossibleEdges(nextModule, nextModuleCoordinate + new Vector3(0, 0, depthDirection), GetConnectorEdge(ConnectorEdge.Z, depthDirection));
             }
-            else if (current_module_edge == GetConnectorEdge(ConnectorEdge.Z, z_flow))
+            else if (currentModuleEdge == GetConnectorEdge(ConnectorEdge.Z, depthDirection))
             {
-                CheckModulePossibleEdges(next_module, next_module_coordinate + new Vector3(x_flow, 0, 0), GetConnectorEdge(ConnectorEdge.X, x_flow), local_map_size);
+                CheckModulePossibleEdges(nextModule, nextModuleCoordinate + new Vector3(horizontalDirection, 0, 0), GetConnectorEdge(ConnectorEdge.X, horizontalDirection));
             }
         }
     }
 
-
-    private void CheckModulePossibleEdges(ModularMapCell current_module, Vector3 next_module_coordinate, ConnectorEdge current_module_edge, Vector3 local_map_size)
+    private void CheckModulePossibleEdges(ModularMapCell currentModule, Vector3 nextModuleCoordinate, ConnectorEdge currentModuleEdge)
     {
         // AreMapDimensionsPositive If currently compared module is within bounds of Map
-        if ((next_module_coordinate.x >= 0 && next_module_coordinate.x < local_map_size.x) &&
-            (next_module_coordinate.y >= 0 && next_module_coordinate.y < local_map_size.y) &&
-            (next_module_coordinate.z >= 0 && next_module_coordinate.z < local_map_size.z))
+        if (IsInMapBounds(nextModuleCoordinate))
         {
             // Attempts to Get the Module
-            ModularMapCell next_module = GetModule(next_module_coordinate);
-            Bitset options = GetEdge_AllOptionsFrom_(current_module_edge, current_module.Options);
-            Filter_OptionsTo_Options(options, ref next_module);
-
-            //int Avalue = next_module.Options.GetBitset()[0];
-            //string Astrand = Convert.ToString(Avalue, 2);
-
-            //int fvalue = next_module.Options.GetBitset()[0];
-            //string strand = Convert.ToString(fvalue, 2);
-            //Debug.Log("AFTER: " + next_module_coordinate + " || " + strand + " :: " + Astrand);
+            ModularMapCell nextModule = GetModule(nextModuleCoordinate);
+            Bitset options = GetAllEdgeOptionsFromID(currentModuleEdge, currentModule.Options);
+            FilterOptionsToCellOptions(options, ref nextModule);
         }
     }
+
+    #endregion
 
 }
 
