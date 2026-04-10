@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-
+using Newtonsoft.Json.Linq;
 
 [System.Serializable]
 public struct CellGroupData
@@ -23,7 +23,7 @@ public struct MicroCell
 
 
 [ExecuteInEditMode]
-public class CellGenerator
+public class CellGenerator : ISaveable
 {
     // Generated GetCells
     private List<Cell> m_cells = new();
@@ -34,6 +34,8 @@ public class CellGenerator
     // Total GetCells ~ can also be found out through counting m_cellsList list
     private int m_totalCells = 0;
     public int GetCellCount() => m_totalCells;
+
+    private string m_fileName = "cells";
 
 
 
@@ -55,14 +57,14 @@ public class CellGenerator
         {
             Sort(ref mapCellComponents);
             CreateConnections(in mapCellComponents);
-            DMG_SaveSystem.SaveCells();
+            DMG_SaveSystem.Save(this, m_fileName);
         }
         else
         {
             // Check for the presence for a cell save file
-            if (DMG_SaveSystem.HasCellDataFile())
+            if (DMG_SaveSystem.DoesFileExist(m_fileName))
             {
-                DMG_SaveSystem.LoadCell();
+                DMG_SaveSystem.Load(this, m_fileName);
             }
             else
             {
@@ -72,7 +74,7 @@ public class CellGenerator
 
         if (m_cells.Count == 0)
         {
-            Debug.LogError("NO CELLS GENERATED");
+            Debug.LogError("NO CELLS GENERATED: " + m_cells.Count);
             return false;
         }
 
@@ -287,6 +289,54 @@ public class CellGenerator
         }
 
         Debug.Log("LOADED NEW CELLS");
+    }
+
+    public JToken Save()
+    {
+        JObject state = new JObject();
+        IDictionary<string, JToken> stateDict = state;
+        stateDict["TotalCells"] = m_cells.Count;
+        
+        JObject cells = new JObject();
+        IDictionary<string, JToken> cellsDict = cells;
+        for (int index = 0; index < m_cells.Count; index++)
+        {
+            Cell cell = m_cells[index];
+            string indexAsString = index.ToString();
+            cellsDict[indexAsString] = cell.Save();
+        }
+        stateDict["CellList"] = cells;
+
+        return state;
+    }
+
+    public void Load(JToken token)
+    {
+        if (token is JObject jObject)
+        {
+            IDictionary<string, JToken> stateDict = jObject;
+            if (stateDict.TryGetValue("TotalCells", out JToken totalCells))
+            {
+                m_totalCells = totalCells.ToObject<int>();
+                
+            }
+
+            if (stateDict.TryGetValue("CellList", out JToken cellList))
+            {
+                m_cells.Clear();
+                IDictionary<string, JToken> cellDict = cellList.ToObject<IDictionary<string, JToken>>();
+                for (int index = 0; index < m_totalCells; index++)
+                {
+                    string indexAsString = index.ToString();
+                    if (cellDict.TryGetValue(indexAsString, out JToken cell))
+                    {
+                        Cell newCell = new Cell();
+                        newCell.Load(cell);
+                        m_cells.Add(newCell);
+                    }
+                }
+            }
+        }
     }
 
     #endregion

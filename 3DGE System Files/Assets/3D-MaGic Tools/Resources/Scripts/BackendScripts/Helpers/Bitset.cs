@@ -2,6 +2,7 @@
 // Bitset information - https://www.youtube.com/watch?v=Q_Apap8Dfbk&ab_channel=LevelUp
 using System;
 using System.Drawing;
+using System.Text;
 
 [System.Serializable]
 public struct BitsetData
@@ -148,14 +149,24 @@ public class Bitset
 
     public string Print()
     {
-        string str = "";
+        string bitsetString = "";
 
         for (int i = 0; i < (m_bitsetSize / 32 + 1); i++)
         {
 
-            str += Convert.ToString(BitsetArray[i], 2);
+            bitsetString += Convert.ToString(BitsetArray[i], 2);
         }
-        return str;
+        
+        StringBuilder sb = new StringBuilder();
+        for (int i = bitsetString.Length - 1; i >= 0; i--)
+        {
+
+            if (i > 0 && (i + 1) % 4 == 0) { sb.Append(' '); }
+            sb.Append(bitsetString[(bitsetString.Length - 1) - i]);
+        }
+        string result = sb.ToString();
+
+        return result;
     }
 
     // ********************************************************************************************
@@ -165,15 +176,15 @@ public class Bitset
 
     // OPERATORS **********************************************************************************
     // ********************************************************************************************
-    public static Bitset operator &(Bitset bits, Bitset other)
+    public static Bitset operator &(Bitset left, Bitset right)
     {
-        if (bits.m_bitsetSize != other.m_bitsetSize) return bits;
+        if (left.m_bitsetSize != right.m_bitsetSize) return left;
 
-        for (int i = 0; i < bits.GetBitset().Length; i++)
+        for (int i = 0; i < left.GetBitset().Length; i++)
         {
-            bits.GetBitset()[i] &= other.GetBitset()[i];
+            left.GetBitset()[i] &= right.GetBitset()[i];
         }
-        return bits;
+        return left;
     }
 
     public static Bitset operator |(Bitset bits, Bitset other)

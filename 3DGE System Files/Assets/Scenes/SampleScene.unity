@@ -439,11 +439,39 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4439367445091064699, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
+      propertyPath: m_fileName
+      value: BOB
+      objectReference: {fileID: 0}
+    - target: {fileID: 4439367445091064699, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
       propertyPath: _currentSeed
       value: 63895642416853
       objectReference: {fileID: 0}
     - target: {fileID: 4439367445091064699, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
+      propertyPath: m_currentSeed
+      value: 63911453301049
+      objectReference: {fileID: 0}
+    - target: {fileID: 4439367445091064699, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
+      propertyPath: m_dimensions.x
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4439367445091064699, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
+      propertyPath: m_dimensions.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4439367445091064699, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
+      propertyPath: m_dimensions.z
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4439367445091064699, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
       propertyPath: _parentTransform
+      value: 
+      objectReference: {fileID: 450152828}
+    - target: {fileID: 4439367445091064699, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
+      propertyPath: m_useCurrentSeed
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4439367445091064699, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
+      propertyPath: m_parentTransform
       value: 
       objectReference: {fileID: 450152828}
     - target: {fileID: 4439367445091064699, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
@@ -451,7 +479,15 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4439367445091064699, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
+      propertyPath: m_mapGenerationType
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4439367445091064699, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
       propertyPath: _mapGenerationControl
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4439367445091064699, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
+      propertyPath: m_mapGenerationControl
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4439367445091064699, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
@@ -481,15 +517,15 @@ PrefabInstance:
     - target: {fileID: 4439367445091064699, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
       propertyPath: 'MapCellComponentsList.Array.data[5]'
       value: 
-      objectReference: {fileID: 11400000, guid: ae2f82f89dec7254cafdf2e7f7fa23f2, type: 2}
+      objectReference: {fileID: 11400000, guid: 4a8b493f0b438c44690deb842df23f2e, type: 2}
     - target: {fileID: 4439367445091064699, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
       propertyPath: 'MapCellComponentsList.Array.data[6]'
       value: 
-      objectReference: {fileID: 11400000, guid: 0e61502d92a42de49a72bb142e3d2a6d, type: 2}
+      objectReference: {fileID: 11400000, guid: d3645ad2ddf601e4e8bcd9ebac7931c5, type: 2}
     - target: {fileID: 4439367445091064699, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
       propertyPath: 'MapCellComponentsList.Array.data[7]'
       value: 
-      objectReference: {fileID: 11400000, guid: 4a8b493f0b438c44690deb842df23f2e, type: 2}
+      objectReference: {fileID: 11400000, guid: 58e5b88c092e75d4c9467afbf7e48da4, type: 2}
     m_RemovedComponents:
     - {fileID: 8606967001817548036, guid: d4f59e93eeab97c4ab8cf3385452a149, type: 3}
     m_RemovedGameObjects: []

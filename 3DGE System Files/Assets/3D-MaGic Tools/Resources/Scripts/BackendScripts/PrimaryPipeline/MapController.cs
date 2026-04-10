@@ -1,3 +1,4 @@
+using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -17,7 +18,7 @@ public struct MapGenData
     }
 }
 
-public class MapController
+public class MapController : ISaveable
 {
     // Public - Classes
     public CellGenerator LocalCellGenerator;
@@ -37,6 +38,9 @@ public class MapController
     private ModularMapCell[,,] m_mapArray; // <- Active Map
     private List<GameObject> m_instMapObjects = new List<GameObject>(); // <- Active list of Instantiated Game Objects
 
+    private bool m_canGenerate;
+    private bool m_canBuild;
+    private bool m_canCombine;
 
     public MapGenData GetMapGenData()
     {
@@ -56,12 +60,16 @@ public class MapController
         if (!IsInputValid()) { return; }
 
         SetLocalClass();
+        SetupExternals();
 
         CreateCells(mapCellList);
 
-        GenerateMapData();
-        InstantiateMapObjects();
-        CombineMapObjects();
+        SetupFlags();
+
+        if (m_canGenerate) { GenerateMapData(); }
+        if (m_canBuild) { InstantiateMapObjects(); }
+        if (m_canCombine) { CombineMapObjects(); }
+        
     }
 
     public void GenerateMap(MapGenData mapGenerationData, Transform parentTransform)
@@ -87,6 +95,10 @@ public class MapController
         m_control = mapGenerationData.Control;
         m_seed = mapGenerationData.Seed;
     }
+    private void SetupExternals()
+    {
+        RandomNumber.Init(m_seed);
+    }
     private bool IsInputValid()
     {
         if (!IsMapDimensionPositive()) { return false; }
@@ -97,6 +109,38 @@ public class MapController
     private bool IsMapDimensionPositive()
     {
         return !(m_dimensions.x < 1 || m_dimensions.y < 1 || m_dimensions.z < 1);
+    }
+
+    private void SetupFlags()
+    {
+        m_canGenerate = false;
+        m_canBuild = false;
+        m_canCombine = false;
+
+        switch (m_control)
+        {
+            case GenerationStep.GenerateBuildCombine:
+                m_canGenerate = true;
+                m_canBuild = true;
+                m_canCombine = true;
+                break;
+            case GenerationStep.GenerateBuild:
+                m_canGenerate = true;
+                m_canBuild = true;
+                break;
+            case GenerationStep.Generate:
+                m_canGenerate = true;
+                break;
+            case GenerationStep.Build:
+                m_canBuild = true;
+                break;
+            case GenerationStep.Combine:
+                m_canCombine = true;
+                break;
+            default:
+
+                break;
+        }
     }
 
     #endregion
@@ -183,7 +227,28 @@ public class MapController
 
     private void GenerateMapData()
     {
+        SetUpMap();
         LocalMapGenerator.Generate(m_dimensions, ref m_mapArray, m_cells);
+    }
+    public void SetUpMap()
+    {
+        m_mapArray = new ModularMapCell[
+                (int)m_dimensions.x,
+                (int)m_dimensions.y,
+                (int)m_dimensions.z];
+
+        int bitsetSize = m_cells.Count;
+
+        for (int z = 0; z < m_dimensions.z; z++)
+        {
+            for (int y = 0; y < m_dimensions.y; y++)
+            {
+                for (int x = 0; x < m_dimensions.x; x++)
+                {
+                    m_mapArray[x, y, z] = new ModularMapCell(bitsetSize);
+                }
+            }
+        }
     }
 
     private void InstantiateMapObjects()
@@ -283,6 +348,40 @@ public class MapController
         }
 
         InstantiateObjectsFromRawData(rawMapData);
+    }
+
+    public JToken Save()
+    {
+        JObject state = new JObject();
+        IDictionary<string, JToken> stateDict = state;
+        stateDict["Cells"] = LocalCellGenerator.Save();
+
+        GenData mapData = new GenData();
+        Save(ref mapData);
+        string data = JsonUtility.ToJson(mapData);
+        stateDict["Map"] = JToken.Parse(data);
+
+        return state;
+    }
+
+    public void Load(JToken token)
+    {
+        if (token is JObject jObject)
+        {
+            IDictionary<string, JToken> tokenDict = jObject;
+
+            if(tokenDict.TryGetValue("Cells", out JToken cells))
+            {
+                LocalCellGenerator.Load(cells);
+                m_cells = LocalCellGenerator.GetCells();
+            }
+
+            if (tokenDict.TryGetValue("Map", out JToken map))
+            {
+                GenData mapData = map.ToObject<GenData>();
+                Load(mapData);
+            }
+        }
     }
 
     #endregion

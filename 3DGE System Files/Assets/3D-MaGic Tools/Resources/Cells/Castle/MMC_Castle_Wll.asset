@@ -12,39 +12,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 785eb980aebc9b848be55d4d52ea528e, type: 3}
   m_Name: MMC_Castle_Wll
   m_EditorClassIdentifier: 
-  _mesh: {fileID: 6881398327043070036, guid: f7407c7ba9bbc674298e97e870efd6cd, type: 3}
-  _rotation: 0
-  _layerType: 1
-  _noVariants: 0
-  m_removeAfterBuild: 0
-  _validConnections:
-  - _connectorEdge: 0
-    _connection:
-      _connector: 0
-      _property: 0
-      _rotation: 0
-  - _connectorEdge: 1
-    _connection:
-      _connector: 8
-      _property: 0
-      _rotation: 0
-  - _connectorEdge: 2
-    _connection:
-      _connector: 0
-      _property: 0
-      _rotation: 0
-  - _connectorEdge: 3
-    _connection:
-      _connector: 8
-      _property: 0
-      _rotation: 0
-  - _connectorEdge: 4
-    _connection:
-      _connector: 8
-      _property: 3
-      _rotation: 0
-  - _connectorEdge: 5
-    _connection:
-      _connector: 8
-      _property: 3
-      _rotation: 0
+  m_mesh: {fileID: 6881398327043070036, guid: f7407c7ba9bbc674298e97e870efd6cd, type: 3}
+  m_rotation: 0
+  m_layerType: 0
+  m_noVariants: 0
+  RemoveAfterBuild: 0
+  m_validConnections:
+  - m_connectorEdge: 0
+    m_connection:
+      Connector: 0
+      Property: 0
+      Rotation: 0
+  - m_connectorEdge: 1
+    m_connection:
+      Connector: 8
+      Property: 0
+      Rotation: 0
+  - m_connectorEdge: 2
+    m_connection:
+      Connector: 0
+      Property: 0
+      Rotation: 0
+  - m_connectorEdge: 3
+    m_connection:
+      Connector: 8
+      Property: 0
+      Rotation: 0
+  - m_connectorEdge: 4
+    m_connection:
+      Connector: 8
+      Property: 3
+      Rotation: 0
+  - m_connectorEdge: 5
+    m_connection:
+      Connector: 8
+      Property: 3
+      Rotation: 0

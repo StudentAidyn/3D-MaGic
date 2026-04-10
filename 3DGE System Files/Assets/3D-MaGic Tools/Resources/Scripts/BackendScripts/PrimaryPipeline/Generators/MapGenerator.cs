@@ -30,37 +30,12 @@ public class MapGenerator
     {
         m_dimensions = dimensions;
         m_cellsList = cellsList;
-
         m_mapArray = mapArray;
-        if(m_mapArray == null)
-        {
-            SetUpMapArray();
-        }
-    }
-
-    protected void SetUpMapArray()
-    {
-        m_mapArray = new ModularMapCell[
-                (int)m_dimensions.x,
-                (int)m_dimensions.y,
-                (int)m_dimensions.z];
-
-        int bitsetSize = m_cellsList.Count;
-
-        for (int z = 0; z < m_dimensions.z; z++)
-        {
-            for (int y = 0; y < m_dimensions.y; y++)
-            {
-                for (int x = 0; x < m_dimensions.x; x++)
-                {
-                    m_mapArray[x, y, z] = new ModularMapCell(bitsetSize);
-                }
-            }
-        }
     }
 
     protected ref ModularMapCell GetModule(Vector3 mapPosition)
     {
+        if(!IsInMapBounds(mapPosition)) { throw new System.Exception("Out of Map Bounds"); }
         return ref m_mapArray[(int)mapPosition.x, (int)mapPosition.y, (int)mapPosition.z];
     }
 

@@ -67,7 +67,7 @@ public class Map : MonoBehaviour
         mapGenData.Dimensions = m_dimensions;
         mapGenData.Type = m_mapGenerationType;
         mapGenData.Control = m_mapGenerationControl;
-        mapGenData.Seed = m_currentSeed;
+        mapGenData.Seed = (m_useCurrentSeed) ?  m_currentSeed : RandomNumber.GetNewSeed();
 
         return mapGenData;
     }
@@ -80,22 +80,14 @@ public class Map : MonoBehaviour
 
     #region Save/Load
 
-    public bool TryStartSaveSystem()
-    {
-        if (!MapControllerCheck()) return false;
-        DMG_SaveSystem.Init(LocalMapController);
-        return true;
-    }
     public void SaveMap()
     {
-        if (!TryStartSaveSystem()) return;
-        DMG_SaveSystem.SaveMap(m_fileName);
+        DMG_SaveSystem.Save(LocalMapController, m_fileName);
     }
 
     public void LoadMap()
     {
-        if (!TryStartSaveSystem()) return;
-        DMG_SaveSystem.LoadMap(m_fileName);
+        DMG_SaveSystem.Load(LocalMapController, m_fileName);
     }
 
     public bool MapControllerCheck()

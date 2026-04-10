@@ -49,8 +49,11 @@ public class InLineCollapse : MapGenerator
         int horizontalPosition = 0;
         int verticalPosition = 0;
 
-        int depthDirection = 1;
         int horizontalDirection = 1;
+        int depthDirection = 1;
+
+        m_horizontalDirection = horizontalDirection;
+        m_depthDirection = depthDirection;
 
         m_horizontal = new Vector3(m_horizontalDirection, 0, 0);
         m_vertical = new Vector3(0, 1, 0);
@@ -122,7 +125,7 @@ public class InLineCollapse : MapGenerator
         int edgeAsInt = (int)edge;
 
         int newEdgeValueAsInt = edgeAsInt + modulusFlow;
-
+        
         return (ConnectorEdge)newEdgeValueAsInt;
     }
 
@@ -133,7 +136,7 @@ public class InLineCollapse : MapGenerator
 
 
         ConnectorEdge horizontalEdge = GetConnectorEdge(ConnectorEdge.X, m_depthDirection);
-        Bitset horizontalOptions = GetEdgeOptionsFromID(horizontalEdge, currentModuleID);
+        Bitset horizontalOptions = new Bitset(GetEdgeOptionsFromID(horizontalEdge, currentModuleID));
 
         Vector3 horizontalCoordinate = currentModuleCoordinate + m_horizontal;
         
@@ -142,16 +145,15 @@ public class InLineCollapse : MapGenerator
 
 
         ConnectorEdge verticalEdge = ConnectorEdge.Y;
-        Bitset verticalOptions = GetEdgeOptionsFromID(verticalEdge, currentModuleID);
-
+        Bitset verticalOptions = new Bitset(GetEdgeOptionsFromID(verticalEdge, currentModuleID));
+        
         Vector3 verticalCoordinate = currentModuleCoordinate + m_vertical;
         
         ApplyOptionsToModuleAtCoordinate(verticalOptions, verticalCoordinate);
-        ApplyAllOptionsToNextEdges(verticalCoordinate);
 
 
         ConnectorEdge depthEdge = GetConnectorEdge(ConnectorEdge.Z, m_depthDirection);
-        Bitset depthOptions = GetEdgeOptionsFromID(depthEdge, currentModuleID);
+        Bitset depthOptions = new Bitset(GetEdgeOptionsFromID(depthEdge, currentModuleID));
 
         Vector3 depthCoordinate = currentModuleCoordinate + m_depth;
 
@@ -164,8 +166,7 @@ public class InLineCollapse : MapGenerator
         // AreMapDimensionsPositive If currently compared module is within bounds of Map
         if (IsInMapBounds(moduleCoordinate))
         {
-            ModularMapCell nextModule = GetModule(moduleCoordinate);
-            FilterOptionsToCellOptions(options, ref nextModule);
+            FilterOptionsToCellOptions(options, ref GetModule(moduleCoordinate));
         }
     }
 
@@ -180,12 +181,14 @@ public class InLineCollapse : MapGenerator
 
     private void ApplyAllOptionsToModuleAtCoordinate(Vector3 moduleCoordinate, Vector3 additionalCoordinates, ConnectorEdge edge)
     {
-        ModularMapCell currentModule = GetModule(moduleCoordinate);
-
-        Bitset allOptions = GetAllEdgeOptionsFromEdge(edge, currentModule.Options);
         Vector3 newCoordinate = moduleCoordinate + additionalCoordinates;
+        if (IsInMapBounds(newCoordinate))
+        {
+            ModularMapCell currentModule = GetModule(moduleCoordinate);
+            Bitset allOptions = new Bitset(GetAllEdgeOptionsFromEdge(edge, currentModule.Options));
 
-        ApplyOptionsToModuleAtCoordinate(allOptions, newCoordinate);
+            ApplyOptionsToModuleAtCoordinate(allOptions, newCoordinate);
+        }
     }
 
     #endregion

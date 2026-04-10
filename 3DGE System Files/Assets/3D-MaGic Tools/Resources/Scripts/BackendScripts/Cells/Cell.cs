@@ -1,9 +1,10 @@
+using Newtonsoft.Json.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class Cell
+public class Cell : ISaveable
 {
     public int ID = 0;
     public GameObject PrefabGameObject = null;
@@ -36,7 +37,13 @@ public class Cell
             Connections.Add(newBitset);
         }
     }
-    
+
+    public void Load(JToken token)
+    {
+        MicroCell cellData = JsonUtility.FromJson<MicroCell>(token.ToString());
+        Load(cellData);
+    }
+
     public void Save(ref MicroCell data)
     {
         // Cell Data
@@ -44,13 +51,6 @@ public class Cell
         data.PrefabGameObject = PrefabGameObject;
         data.Rotation = Rotation;
         data.Layers = Layers;
-
-        //public Connection ConnectionRight;
-        //public Connection ConnectionUp;
-        //public Connection ConnectionFront;
-        //public Connection ConnectionLeft;
-        //public Connection ConnectionDown;
-        //public Connection ConnectionBack;
 
         // Bitset Data
         List<BitsetData> lst_bitsetData = new List<BitsetData>();
@@ -63,5 +63,13 @@ public class Cell
 
         data.EdgeConnections = lst_bitsetData.ToArray();
 
+    }
+
+    public JToken Save()
+    {
+        MicroCell data = new MicroCell();
+        Save(ref data);
+        string jsonData = JsonUtility.ToJson(data);
+        return JToken.Parse(jsonData);
     }
 }

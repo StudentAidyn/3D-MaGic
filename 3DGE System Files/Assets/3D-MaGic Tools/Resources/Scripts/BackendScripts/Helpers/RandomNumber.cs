@@ -7,10 +7,14 @@ public static class RandomNumber
     static private ulong[] s_memory;
     static public ulong GetSeed() { return s_seed; }
 
+    static public ulong GetNewSeed()
+    {
+        return (ulong)DateTime.Now.Ticks / (ulong)TimeSpan.TicksPerMillisecond;
+    }
     static public void Init()
     {
         //Debug.Log(DateTime.Now);
-        s_seed = (ulong)DateTime.Now.Ticks / (ulong)TimeSpan.TicksPerMillisecond;
+        s_seed = GetNewSeed();
         MemorySetup();
     }
 
@@ -33,8 +37,6 @@ public static class RandomNumber
             Init();
         }
     }
-
-
 
     static private void MemorySetup()
     {
