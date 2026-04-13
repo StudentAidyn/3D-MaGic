@@ -73,16 +73,11 @@ public class InLineCollapse : MapGenerator
                 {
                     ModularMapCell modularMapCell = m_mapArray[horizontalPosition, verticalPosition, depthPosition];
 
-                    if (modularMapCell != null)
-                    {
-                        CollapseCell(ref modularMapCell);
+                    CollapseCell(ref modularMapCell);
 
-                        Vector3 newModuleCoord = new Vector3(horizontalPosition, verticalPosition, depthPosition);
-                        UpdateEdgesWithinCoordinate(newModuleCoord);
+                    Vector3 newModuleCoord = new Vector3(horizontalPosition, verticalPosition, depthPosition);
+                    UpdateEdgesWithinCoordinate(newModuleCoord);
 
-                        //** debugging
-                        //executionCounter++;
-                    }
                     horizontalPosition += horizontalDirection;
                 }
             

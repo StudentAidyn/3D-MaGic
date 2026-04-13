@@ -2,20 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // RELATED ENUMS
-public enum GenerationType
-{
-    InLineCollapse,
-    WaveFunctionCollapse
-}
-
-public enum GenerationStep{
-    GenerateBuildCombine,
-    GenerateBuild,
-    Generate,
-    Build,
-    Combine
-}
-
 
 [ExecuteInEditMode]
 public class Map : MonoBehaviour
@@ -74,7 +60,7 @@ public class Map : MonoBehaviour
 
     public void ClearMap()
     {
-        LocalMapController.ClearInstantiatedMap();
+        LocalMapController.ClearInstantiatedMapObjects();
     }
 
 

@@ -11,18 +11,18 @@ public class MapMeshCombiner
     #region PUBLIC-METHODS
 
     // Combines Meshes of a SINGLE Game Object parent with their children
-    public void CombineMeshes(GameObject gameObject)
+    public List<GameObject> CombineMeshes(GameObject gameObject)
     {
         Dictionary<Material, List<MeshFilter>> meshFilters = new Dictionary<Material, List<MeshFilter>>();
 
         CollectMeshFiltersPerGameObject(ref meshFilters, gameObject);
 
-        GenerateGameObjectsFromDictionary(meshFilters);
+        return GenerateGameObjectsFromDictionary(meshFilters);
     }
 
     // Combines Meshes of a MULTIPLE Game Object parents with their children
 
-    public void CombineMeshes(ref List<GameObject> gameObjects)
+    public List<GameObject> CombineMeshes(ref List<GameObject> gameObjects)
     {
         Dictionary<Material, List<MeshFilter>> meshFilters = new Dictionary<Material, List<MeshFilter>>();
         foreach (GameObject gameObject in gameObjects)
@@ -30,7 +30,7 @@ public class MapMeshCombiner
             CollectMeshFiltersPerGameObject(ref meshFilters, gameObject);
         }
 
-        GenerateGameObjectsFromDictionary(meshFilters);
+        return GenerateGameObjectsFromDictionary(meshFilters);
     }
 
     #endregion
@@ -69,8 +69,9 @@ public class MapMeshCombiner
 
     }
 
-    private void GenerateGameObjectsFromDictionary(Dictionary<Material, List<MeshFilter>> meshFilters)
+    private List<GameObject> GenerateGameObjectsFromDictionary(Dictionary<Material, List<MeshFilter>> meshFilters)
     {
+        List<GameObject> combinedObjects = new List<GameObject>();
         foreach(Material mat in meshFilters.Keys)
         {
             List<MeshFilter> listMeshFilter = meshFilters[mat];
@@ -78,7 +79,9 @@ public class MapMeshCombiner
             GameObject meshFilterObject = GenerateGameObjectFromMeshFilters(listMeshFilter, materialName);
             MeshRenderer meshRenderer = meshFilterObject.AddComponent<MeshRenderer>();
             meshRenderer.sharedMaterial = mat;
+            combinedObjects.Add(meshFilterObject);
         }
+        return combinedObjects;
     }
 
     private GameObject GenerateGameObjectFromMeshFilters(List<MeshFilter> meshFilters, string name = "")

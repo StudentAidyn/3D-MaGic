@@ -73,7 +73,9 @@ public static class DMG_SaveSystem
                 serializer.Serialize(writer, data);
             }
         }
-        Debug.Log("Saved to - " + filePath);
+        #if UNITY_EDITOR
+            Debug.Log("Saved to - " + filePath);
+        #endif
     }
 
     public static void Load(ISaveable iSaveable, string fileName)

@@ -34,14 +34,17 @@ public class MapController : ISaveable
     private Transform m_parentTransform;
 
     // Private - Containers
-    private List<Cell> m_cells; // <- Active list of Cell objects
+    private List<Cell> m_cells = new List<Cell>(); // <- Active list of Cell objects
     private ModularMapCell[,,] m_mapArray; // <- Active Map
     private List<GameObject> m_instMapObjects = new List<GameObject>(); // <- Active list of Instantiated Game Objects
+    private List<GameObject> m_instCombinedMapObjects = new List<GameObject>();
 
     private bool m_canGenerate;
     private bool m_canBuild;
     private bool m_canCombine;
 
+
+    public bool HasCells() { return (m_cells != null && m_cells.Count > 0); }
     public MapGenData GetMapGenData()
     {
         MapGenData mapGenDataPkg = 
@@ -192,9 +195,10 @@ public class MapController : ISaveable
     #endregion
 
     #region PRIMARY-EXECUTIONS
-    public void ClearInstantiatedMap()
+    public void ClearInstantiatedMapObjects()
     {
         ClearBuiltListOfGameObjects();
+        ClearBuiltListOfCombinedObjects();
     }
     public void ClearBuiltListOfGameObjects()
     {
@@ -209,6 +213,19 @@ public class MapController : ISaveable
         m_instMapObjects.Clear();
     }
 
+    public void ClearBuiltListOfCombinedObjects()
+    {
+        if (m_instCombinedMapObjects == null ||
+    m_instCombinedMapObjects.Count < 1) { return; }
+
+        foreach (GameObject combinedObjects in m_instCombinedMapObjects)
+        {
+            DestroyUnityObject(combinedObjects);
+        }
+
+        m_instCombinedMapObjects.Clear();
+    }
+
     // destroys objects during edit and play mode
     public void DestroyUnityObject(Object obj)
     {
@@ -220,8 +237,8 @@ public class MapController : ISaveable
 
 
     private void CreateCells(List<ModularMapCellComponent> mapCellList)
-    {
-        LocalCellGenerator.Init(ref mapCellList);
+    {   
+        LocalCellGenerator.Init(mapCellList);
         m_cells = LocalCellGenerator.GetCells();
     }
 
@@ -277,7 +294,7 @@ public class MapController : ISaveable
     {
         if (m_instMapObjects.Count > 0)
         {
-            LocalMapMeshCombiner.CombineMeshes(ref m_instMapObjects);
+            m_instCombinedMapObjects = LocalMapMeshCombiner.CombineMeshes(ref m_instMapObjects);
             m_parentTransform.gameObject.SetActive(false);
         }
     }

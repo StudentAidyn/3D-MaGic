@@ -45,14 +45,19 @@ public class CellGenerator : ISaveable
 
     #region PUBLIC-METHODS
 
-    public void Init(ref List<ModularMapCellComponent> mapCellComponents)
+    public void Init(List<ModularMapCellComponent> mapCellComponents)
     {
-        GenerateCells(ref mapCellComponents);
+        GenerateCells(mapCellComponents);
     }
 
 
-    public bool GenerateCells(ref List<ModularMapCellComponent> mapCellComponents)
+    public bool GenerateCells(List<ModularMapCellComponent> mapCellComponents)
     {
+        if(mapCellComponents == null)
+        {
+            return false;
+        }
+
         if (mapCellComponents.Count > 0)
         {
             Sort(ref mapCellComponents);
@@ -99,7 +104,7 @@ public class CellGenerator : ISaveable
         m_totalCells = 0;
     }
 
-    // generate connections based on the connection rules - can generate during editor (out of play state)
+    // Generate connections based on the connection rules - can Generate during editor (out of play state)
     private void CreateConnections(in List<ModularMapCellComponent> mapCellComponents)
     {
         ResetCells();

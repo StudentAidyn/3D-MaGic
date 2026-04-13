@@ -51,7 +51,7 @@ public class WFC_Redux : MapGenerator
         Propagate(Vector3.zero);
 
 
-        // Loops until the all Modules are collapsed - this is where the loop needs to be freed to properly generate it correctly
+        // Loops until the all Modules are collapsed - this is where the loop needs to be freed to properly Generate it correctly
         while (m_totalCurrentlyCollapsedModules < m_totalModules)
         {
             if (!Iterate())

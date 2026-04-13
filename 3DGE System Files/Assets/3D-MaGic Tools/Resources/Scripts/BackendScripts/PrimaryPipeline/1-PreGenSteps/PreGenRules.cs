@@ -4,12 +4,12 @@ using UnityEngine;
 
 public abstract class PreGenRules : MonoBehaviour 
 {
-    public abstract void PreGen(Map _map);
+    public abstract void PreGen();
 }
 
 public class LayerController : PreGenRules
 {
-    public override void PreGen(Map _map)
+    public override void PreGen()
     {
         // Do something to layers
     }
