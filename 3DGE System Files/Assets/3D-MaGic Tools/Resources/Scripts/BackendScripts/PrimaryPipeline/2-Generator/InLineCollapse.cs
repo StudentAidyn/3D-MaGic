@@ -71,7 +71,7 @@ public class InLineCollapse : MapGenerator
             {
                 while (horizontalPosition >= 0 && horizontalPosition < m_dimensions.x)
                 {
-                    ModularMapCell modularMapCell = m_mapArray[horizontalPosition, verticalPosition, depthPosition];
+                    ref ModularMapCell modularMapCell = ref GetModule(horizontalPosition, verticalPosition, depthPosition);
 
                     CollapseCell(ref modularMapCell);
 

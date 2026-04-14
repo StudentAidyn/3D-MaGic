@@ -35,10 +35,15 @@ public class MapGenerator
 
     protected ref ModularMapCell GetModule(Vector3 mapPosition)
     {
-        if(!IsInMapBounds(mapPosition)) { throw new System.Exception("Out of Map Bounds"); }
-        return ref m_mapArray[(int)mapPosition.x, (int)mapPosition.y, (int)mapPosition.z];
+        return ref GetModule((int)mapPosition.x, (int)mapPosition.y, (int)mapPosition.z);
     }
 
+    protected ref ModularMapCell GetModule(int x, int y, int z)
+    {
+        Vector3 mapPosition = new Vector3(x, y, z);
+        if (!IsInMapBounds(mapPosition)) { throw new System.Exception("Out of Map Bounds"); }
+        return ref m_mapArray[x, y, z];
+    }
 
     #region Cell Logic
 
