@@ -1,6 +1,9 @@
 // Save System Information - https://www.youtube.com/watch?v=1mf730eb5Wo&t 
 using System.IO;
 using UnityEngine;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
+using System.Collections.Generic;
 
 [System.Serializable]
 public struct GenData
@@ -13,116 +16,95 @@ public struct GenData
 
 public static class DMG_SaveSystem
 {
-    private static DMG_SaveData_Map dmg_saveData_map = new DMG_SaveData_Map();
-    private static DMG_SaveData_Cells dmg_saveData_cells = new DMG_SaveData_Cells();
-
-    private static MapController mc_controller;
-
-    private static string str_fileName = "map";
+    private static string m_name = "data";
 
     [System.Serializable]
     public struct DMG_SaveData_Map
     {
-        public GenData _GenData;
-        public CellGroupData _CellGroupData;
+        public GenData GenerationData;
+        public CellGroupData CellGroupData;
     }
 
     [System.Serializable]
     public struct DMG_SaveData_Cells
     {
-        public CellGroupData _CellGroupData;
+        public CellGroupData CellGroupData;
     }
 
-
-
-    public static void Init(MapController _map)
+    private static string GetPersistentFilePath()
     {
-        mc_controller = _map;
+        return Application.persistentDataPath + "/";
     }
 
-    // SAVE/LOAD MAP ******************************************************************************
-    // ********************************************************************************************
-    private static string SaveFilePath_Map()
+    private static string GetFileExtension()
     {
-        return Application.persistentDataPath + "/" + str_fileName + ".svm";
+        return ".json";
     }
 
-    public static void SaveMap(string _fileName = "map")
+    private static string GetFullFilePath(string fileName)
     {
-        str_fileName = _fileName;
-
-        HandleSaveGenData();
-        File.WriteAllText(SaveFilePath_Map(), JsonUtility.ToJson(dmg_saveData_map, true));
-        Debug.Log(SaveFilePath_Map());
+        return GetPersistentFilePath() + fileName + GetFileExtension();
     }
 
-    public static void HandleSaveGenData()
+    public static bool DoesFileExist(string fileName)
     {
-        mc_controller.Save(ref dmg_saveData_map._GenData);
-        mc_controller.LocalCellGenerator.Save(ref dmg_saveData_map._CellGroupData);
+        return File.Exists(GetFullFilePath(fileName));
     }
 
-    public static void LoadMap(string _fileName = "map")
+    public static void Save(ISaveable iSaveable, string fileName)
     {
-        str_fileName = _fileName;
+        string filePath = GetFullFilePath(fileName);
 
-        string save_data = File.ReadAllText(SaveFilePath_Map());
+        JToken tokenData = iSaveable.Save();
 
-        dmg_saveData_map = JsonUtility.FromJson<DMG_SaveData_Map>(save_data);
+        JObject objectData = new JObject();
+        objectData.Add(m_name, tokenData);
 
-        HandleLoadGenData();
+        SaveToFile(filePath, objectData);
     }
 
-    private static void HandleLoadGenData()
+    private static void SaveToFile(string filePath, JObject data)
     {
-        mc_controller.Load(dmg_saveData_map._GenData);
-        mc_controller.LocalCellGenerator.Load(dmg_saveData_map._CellGroupData);
-
+        using (var textWriter = File.CreateText(filePath))
+        {
+            using (var writer = new JsonTextWriter(textWriter))
+            {
+                JsonSerializer serializer = new JsonSerializer();
+                serializer.Serialize(writer, data);
+            }
+        }
+        #if UNITY_EDITOR
+            Debug.Log("Saved to - " + filePath);
+        #endif
     }
 
-    // ********************************************************************************************
-    // ********************************************************************************************
-
-
-    // SAVE/LOAD CELLS ****************************************************************************
-    // ********************************************************************************************
-
-    private static string SaveFilePath_Cells()
+    public static void Load(ISaveable iSaveable, string fileName)
     {
-        return Application.persistentDataPath + "/cells.svc";
+        string filePath = GetFullFilePath(fileName);
+        JObject dataObject = LoadFromFile(filePath);
+        IDictionary<string, JToken> dataDict = dataObject;
+
+        if(dataDict.TryGetValue("data", out JToken data))
+        {
+            iSaveable.Load(data);
+        }
+
+        
     }
 
-    public static void SaveCells()
+    private static JObject LoadFromFile(string savePath)
     {
-        HandleSaveCellData();
-        File.WriteAllText(SaveFilePath_Cells(), JsonUtility.ToJson(dmg_saveData_cells, true));
+        if (!File.Exists(savePath)) { return new JObject(); }
+
+        using (var textReader = File.OpenText(savePath))
+        {
+            using (var reader = new JsonTextReader(textReader))
+            {
+                reader.FloatParseHandling = FloatParseHandling.Double;
+                return JObject.Load(reader);
+            }
+        }
     }
 
-    public static void HandleSaveCellData()
-    {
-        mc_controller.LocalCellGenerator.Save(ref dmg_saveData_cells._CellGroupData);
-    }
-
-    public static void LoadCell()
-    {
-        string save_data = File.ReadAllText(SaveFilePath_Cells());
-
-        dmg_saveData_cells = JsonUtility.FromJson<DMG_SaveData_Cells>(save_data);
-
-        HandleLoadCellData();
-    }
-
-    private static void HandleLoadCellData()
-    {
-        mc_controller.LocalCellGenerator.Load(dmg_saveData_cells._CellGroupData);
-    }
-
-    public static bool HasCellDataFile()
-    {
-        return File.Exists(SaveFilePath_Cells());
-    }
-
-    // ********************************************************************************************
-    // ********************************************************************************************
 }
 

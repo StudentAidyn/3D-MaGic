@@ -1,20 +1,21 @@
+using Newtonsoft.Json.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class Cell
+public class Cell : ISaveable
 {
     public int ID = 0;
     public GameObject PrefabGameObject = null;
     public sbyte Rotation = 0;
     public LayerTypes Layers = LayerTypes.None;
     public Connection ConnectionRight;
-    public Connection ConnectionFront;
     public Connection ConnectionUp;
+    public Connection ConnectionFront;
     public Connection ConnectionLeft;
-    public Connection ConnectionBack;
     public Connection ConnectionDown;
+    public Connection ConnectionBack;
     public List<Bitset> Connections = new List<Bitset>();
 
     public Vector3 GetRotationInDegrees()
@@ -36,7 +37,13 @@ public class Cell
             Connections.Add(newBitset);
         }
     }
-    
+
+    public void Load(JToken token)
+    {
+        MicroCell cellData = JsonUtility.FromJson<MicroCell>(token.ToString());
+        Load(cellData);
+    }
+
     public void Save(ref MicroCell data)
     {
         // Cell Data
@@ -45,23 +52,24 @@ public class Cell
         data.Rotation = Rotation;
         data.Layers = Layers;
 
-        //public Connection ConnectionRight;
-        //public Connection ConnectionFront;
-        //public Connection ConnectionUp;
-        //public Connection ConnectionLeft;
-        //public Connection ConnectionBack;
-        //public Connection ConnectionDown;
-
         // Bitset Data
         List<BitsetData> lst_bitsetData = new List<BitsetData>();
         for (int i = 0; i < Connections.Count; i++)
         {
-            BitsetData new_data = new BitsetData();
-            Connections[i].Save(ref new_data);
-            lst_bitsetData.Add(new_data);
+            BitsetData newData = new BitsetData();
+            Connections[i].Save(ref newData);
+            lst_bitsetData.Add(newData);
         }
 
         data.EdgeConnections = lst_bitsetData.ToArray();
 
+    }
+
+    public JToken Save()
+    {
+        MicroCell data = new MicroCell();
+        Save(ref data);
+        string jsonData = JsonUtility.ToJson(data);
+        return JToken.Parse(jsonData);
     }
 }

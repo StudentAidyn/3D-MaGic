@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
@@ -34,14 +32,14 @@ public class CellController: MonoBehaviour
 
     public void CreateNewCell()
     {
-        LayerTypes _layerTypes = LayerTypes.None;
-        sbyte _rotation = 0;
+        //LayerTypes _layerTypes = LayerTypes.None;
+        //sbyte m_rotation = 0;
 
-        Connection _con_posX;
-        Connection _con_posY;
-        Connection _con_posZ;
-        Connection _con_negX;
-        Connection _con_negY;
-        Connection _con_negZ;
+        //Connection _con_posX;
+        //Connection _con_posY;
+        //Connection _con_posZ;
+        //Connection _con_negX;
+        //Connection _con_negY;
+        //Connection _con_negZ;
     }
 }

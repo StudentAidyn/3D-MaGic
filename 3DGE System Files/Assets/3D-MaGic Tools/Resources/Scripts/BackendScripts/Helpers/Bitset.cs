@@ -2,6 +2,7 @@
 // Bitset information - https://www.youtube.com/watch?v=Q_Apap8Dfbk&ab_channel=LevelUp
 using System;
 using System.Drawing;
+using System.Text;
 
 [System.Serializable]
 public struct BitsetData
@@ -50,7 +51,8 @@ public class Bitset
     // ********************************************************************************************
     private void Setup(int size)
     {
-        BitsetArray = new int[(size / 32) + 1];
+        int bitsetArraySize = (size / 32) + 1;
+        BitsetArray = new int[bitsetArraySize];
         m_bitsetSize = size;
     }
 
@@ -63,7 +65,8 @@ public class Bitset
     {
         if (otherBitset.m_bitsetSize != m_bitsetSize) return false;
 
-        for (int i = 0; i < m_bitsetSize / 32 + 1; i++)
+        int bitsetArraySize = (m_bitsetSize / 32) + 1;
+        for (int i = 0; i < bitsetArraySize; i++)
         {
             BitsetArray[i] = otherBitset.BitsetArray[i];
         }
@@ -146,14 +149,24 @@ public class Bitset
 
     public string Print()
     {
-        string str = "";
+        string bitsetString = "";
 
         for (int i = 0; i < (m_bitsetSize / 32 + 1); i++)
         {
 
-            str += Convert.ToString(BitsetArray[i], 2);
+            bitsetString += Convert.ToString(BitsetArray[i], 2);
         }
-        return str;
+        
+        StringBuilder sb = new StringBuilder();
+        for (int i = bitsetString.Length - 1; i >= 0; i--)
+        {
+
+            if (i > 0 && (i + 1) % 4 == 0) { sb.Append(' '); }
+            sb.Append(bitsetString[(bitsetString.Length - 1) - i]);
+        }
+        string result = sb.ToString();
+
+        return result;
     }
 
     // ********************************************************************************************
@@ -163,38 +176,38 @@ public class Bitset
 
     // OPERATORS **********************************************************************************
     // ********************************************************************************************
-    public static Bitset operator &(Bitset A_bits, Bitset B_bits)
+    public static Bitset operator &(Bitset left, Bitset right)
     {
-        if (A_bits.m_bitsetSize != B_bits.m_bitsetSize) return A_bits;
+        if (left.m_bitsetSize != right.m_bitsetSize) return left;
 
-        for (int i = 0; i < A_bits.GetBitset().Length; i++)
+        for (int i = 0; i < left.GetBitset().Length; i++)
         {
-            A_bits.GetBitset()[i] &= B_bits.GetBitset()[i];
+            left.GetBitset()[i] &= right.GetBitset()[i];
         }
-        return A_bits;
+        return left;
     }
 
-    public static Bitset operator |(Bitset A_bits, Bitset B_bits)
+    public static Bitset operator |(Bitset bits, Bitset other)
     {
-        if (A_bits.m_bitsetSize != B_bits.m_bitsetSize) return null;
+        if (bits.m_bitsetSize != other.m_bitsetSize) return null;
 
-        for (int i = 0; i < A_bits.GetBitset().Length; i++)
+        for (int i = 0; i < bits.GetBitset().Length; i++)
         {
-            A_bits.GetBitset()[i] |= B_bits.GetBitset()[i];
+            bits.GetBitset()[i] |= other.GetBitset()[i];
         }
-        return A_bits;
+        return bits;
     }
 
     // STATIC FUNCTIONS ***************************************************************************
     // ********************************************************************************************
 
-    public static bool DoesBitsetMatchOther(Bitset bitset_A, Bitset bitset_B)
+    public static bool DoesBitsetMatchOther(Bitset bitset, Bitset other)
     {
-        if (bitset_A.m_bitsetSize != bitset_B.m_bitsetSize) return false;
+        if (bitset.m_bitsetSize != other.m_bitsetSize) return false;
 
-        for (int i = 0; i < bitset_A.m_bitsetSize / 32 + 1; i++)
+        for (int i = 0; i < bitset.m_bitsetSize / 32 + 1; i++)
         {
-            if(bitset_A[i] != bitset_B[i])
+            if(bitset[i] != other[i])
             {
                 return false;
             }

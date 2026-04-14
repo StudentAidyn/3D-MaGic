@@ -5,21 +5,21 @@ public static class TimeKeeper
     // DEBUG / PROCESS TIMING VARIABLES AND CONTROLS **********************************************
     // ********************************************************************************************
 
-    static DateTime _dt_start;
-    static DateTime _dt_end;
+    static private DateTime s_start;
+    static private DateTime s_end;
 
     public static void RegisterStartTime()
     {
-        _dt_start = DateTime.Now;
+        s_start = DateTime.Now;
     }
     public static void RegisterEndTime()
     {
-        _dt_end = DateTime.Now;
+        s_end = DateTime.Now;
     }
 
     public static TimeSpan GetTotalTime()
     {
-        return (_dt_end - _dt_start);
+        return (s_end - s_start);
     }
 
     // ********************************************************************************************
